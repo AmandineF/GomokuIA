@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Game</title>
+	</head>
+	<link rel="stylesheet" type="text/css" href="css/morpion.css">
+	<link rel="stylesheet" href="fonts/junction/stylesheet.css" type="text/css" charset="utf-8" />
+	<body>
+	<div id="title">
+			<img src="images/logo.png" width="30%">
+	</div>
+	<div id="volet" class="configuration">
+		<div>
+			<div>
+				<p style="text-align:center;"><button onclick="get_configuration();" >Random configuration</button></p>
+			    <p class="config_label">Nombre de lignes <input id="nb_rows" type="number" min="1" max="15" value="8"></p>
+				<p class="config_label">Nombre de colonnes <input id="nb_cols" type="number" min="1" max="15" value="8"></p>
+				<p class="config_label">Jetons <input id="nb_win" type="number" min="1" value="5" max="15"></p>
+			</div>
+			<div>
+			<table class="config_label" style="text-align:center;">
+				<tr>
+					<td></td>
+					<td>Joueur rouge</td>
+					<td>Joueur noir</td>
+				</tr>
+				<tr>
+					<td>Human</td>
+					<td><input id="red_human" type="checkbox"></td>
+					<td><input id="black_human" type="checkbox"></td>
+				</tr>
+				<tr>
+					<td>Computer</td>
+					<td><input id="red_ia" type="checkbox"></td>
+					<td><input id="black_ia" type="checkbox"></td>
+				</tr>
+				<tr>
+					<td>Random</td>
+					<td><input id="red_random" type="checkbox"></td>
+					<td><input id="black_random" type="checkbox" checked="true"></td>
+				</tr>
+			</table>
+			</div>
+			<p style="text-align:center;"><button onclick="get_configuration();" >Commencer</button></p>
+		</div>
+		<a href="#volet" class="ouvrir">Configuration</a>
+		<a href="#volet_clos" class="fermer">Configuration</a>
+	</div>
+	<div class="content" style="width:100%">
+		<div style="width:100%;padding:10px;text-align:center;" id="game">
+			<div style="margin-bottom:20px;"><img src="images/cross.png"><span id="player_round">Default</span></div>
+			<table id="table_game" align="center"></table>
+		<div>
+		<p id="winner"></p>
+	</div>
+
+
+		<script src='js/morpion.js'></script>
+	</body>
+</html>

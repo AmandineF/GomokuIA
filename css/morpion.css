@@ -1,0 +1,107 @@
+html {
+	background-color: #42413d;
+	color:white;
+	font-family: 'junction_regularregular';
+}
+button {
+	font-family: 'junction_regularregular',
+	font-size:14px;
+	padding:5px;
+	cursor:pointer;
+	/*background-color:#fe0000; */
+}
+td, tr{
+	border: 2px solid white;
+	border-radius: 10px;
+	background-color: white;
+}
+
+#table_game td{
+	width: 50px;
+	height: 50px;
+	cursor: pointer;
+}
+
+.red {
+	background: white url("../images/cross.png") no-repeat center center;
+}
+
+.black {
+	background: white url("../images/circle.png") no-repeat center center;
+}
+
+.content{
+	padding:10px;
+	position:absolute;
+  	z-index:1;
+}
+
+#rules{
+ 	float:left;
+    width:30%;
+}
+#title{
+	text-align: center;
+	padding:50px;
+}
+
+#volet {
+	position:absolute;
+ 	z-index: 2;
+    width: 280px;
+    padding: 20px;
+    background: white; color: black;
+    border-radius: 0 8px 8px 0 ;
+    left: -320px; 
+    top: 200px;	
+}
+
+#volet a.ouvrir, #volet a.fermer {
+    padding: 10px 25px;
+    background: #fe0000;
+    color: #fff;
+    text-decoration: none;
+}
+
+#volet a.fermer {
+    display: none;
+}
+
+#volet a.ouvrir, #volet a.fermer {
+    position: absolute;
+    right: -98px;
+    top: 130px;
+
+    /* quelques styles CSS3 */
+    -ms-transform: rotate(270deg);
+    -moz-transform: rotate(270deg);
+    -webkit-transform: rotate(270deg);
+    transform: rotate(270deg);
+
+    border-radius: 0 0 8px 8px;
+}
+
+#volet {
+    -webkit-transition: all .5s ease-in;
+    transition: all .5s ease-in;
+}
+
+#volet_clos:target #volet {
+    left: -250px;
+}
+
+#volet:target a.ouvrir {
+    display: none;
+}
+
+#volet:target a.fermer {
+    display: block;
+}
+
+#volet:target {
+    left: 0;
+}
+
+.config_label {
+	margin-bottom: 10px;
+}
