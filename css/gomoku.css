@@ -1,15 +1,16 @@
 html {
 	background-color: #42413d;
 	color:white;
-	font-family: 'junction_regularregular';
+    font-family: Gill Sans,Gill Sans MT,Calibri,sans-serif; 
 }
+
 button {
-	font-family: 'junction_regularregular',
+    font-family: Gill Sans,Gill Sans MT,Calibri,sans-serif; 
 	font-size:14px;
 	padding:5px;
 	cursor:pointer;
-	/*background-color:#fe0000; */
 }
+
 td, tr{
 	border: 2px solid white;
 	border-radius: 10px;
@@ -17,11 +18,18 @@ td, tr{
 }
 
 #table_game td{
-	width: 50px;
-	height: 50px;
+	/*width: 50px;
+	height: 50px;*/
 	cursor: pointer;
 }
 
+#player_round{
+    font-size:18px;
+    vertical-align: 59%;
+}
+#img_turn{
+    margin-top: 10px;
+}
 .red {
 	background: white url("../images/cross.png") no-repeat center center;
 }
@@ -36,6 +44,16 @@ td, tr{
   	z-index:1;
 }
 
+#start_again{
+    vertical-align: 60%;
+    margin-left: 10px;
+}
+#start_again .hide{
+    display: none;
+}
+#start_again .show{
+    display: inline;
+}
 #rules{
  	float:left;
     width:30%;
@@ -43,6 +61,7 @@ td, tr{
 #title{
 	text-align: center;
 	padding:50px;
+    padding-bottom: 20px;
 }
 
 #volet {
@@ -52,6 +71,7 @@ td, tr{
     padding: 20px;
     background: white; color: black;
     border-radius: 0 8px 8px 0 ;
+    border: 2px solid grey;
     left: -320px; 
     top: 200px;	
 }
@@ -69,7 +89,7 @@ td, tr{
 
 #volet a.ouvrir, #volet a.fermer {
     position: absolute;
-    right: -98px;
+    right: -105px;
     top: 130px;
 
     /* quelques styles CSS3 */
@@ -103,5 +123,5 @@ td, tr{
 }
 
 .config_label {
-	margin-bottom: 10px;
+	margin-bottom: 20px;
 }

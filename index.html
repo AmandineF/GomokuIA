@@ -1,60 +1,69 @@
 <!doctype html>
 <html>
 	<head>
-		<title>Game</title>
+		<title>Gomoku</title>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	</head>
-	<link rel="stylesheet" type="text/css" href="css/morpion.css">
-	<link rel="stylesheet" href="fonts/junction/stylesheet.css" type="text/css" charset="utf-8" />
+	<link rel="stylesheet" type="text/css" href="css/gomoku.css">
 	<body>
 	<div id="title">
-			<img src="images/logo.png" width="30%">
+			<img src="images/logo.png" width="400px">
 	</div>
 	<div id="volet" class="configuration">
 		<div>
-			<div>
-				<p style="text-align:center;"><button onclick="get_configuration();" >Random configuration</button></p>
-			    <p class="config_label">Nombre de lignes <input id="nb_rows" type="number" min="1" max="15" value="8"></p>
-				<p class="config_label">Nombre de colonnes <input id="nb_cols" type="number" min="1" max="15" value="8"></p>
-				<p class="config_label">Jetons <input id="nb_win" type="number" min="1" value="5" max="15"></p>
+			<div style="margin-bottom:30px;">
+				<p  class="config_label">
+				    <div style="float:left;width:50%;text-align:center;">Lines <input id="nb_rows" type="number" min="1" max="15" value="3"></div>
+					<div style="margin-left:50%;text-align:center;">Columns <input id="nb_cols" type="number" min="1" max="15" value="3"></div>
+				</p>
+				<div style="margin-left:30px;" class="config_label">Token to align <input id="nb_win" type="number" min="2" value="3" max="15"></div>
+				<div style="margin-left:30px;" class="config_label">Search depth <input id="nb_win" type="number" min="1" value="4" max="10"></div>
+				
 			</div>
 			<div>
-			<table class="config_label" style="text-align:center;">
+			<table class="config_label" style="width:80%;margin-left:30px;">
 				<tr>
-					<td></td>
-					<td>Joueur rouge</td>
-					<td>Joueur noir</td>
+					<td style="width:60%;"></td>
+					<td style="text-align:center;width:20%;">Red</td>
+					<td style="text-align:center;width:20%;">Black</td>
 				</tr>
 				<tr>
 					<td>Human</td>
-					<td><input id="red_human" type="checkbox"></td>
-					<td><input id="black_human" type="checkbox"></td>
+					<td style="text-align:center;"><input name="red" id="red_human" type="radio"  checked="true"></td>
+					<td style="text-align:center;"><input name="black" id="black_human" type="radio"></td>
 				</tr>
 				<tr>
 					<td>Computer</td>
-					<td><input id="red_ia" type="checkbox"></td>
-					<td><input id="black_ia" type="checkbox"></td>
+					<td style="text-align:center;"><input name="red" id="red_ia" type="radio"></td>
+					<td style="text-align:center;"><input name="black" id="black_ia" type="radio"></td>
 				</tr>
 				<tr>
 					<td>Random</td>
-					<td><input id="red_random" type="checkbox"></td>
-					<td><input id="black_random" type="checkbox" checked="true"></td>
+					<td style="text-align:center;"><input name="red" id="red_random" type="radio"></td>
+					<td style="text-align:center;"><input name="black" id="black_random" type="radio" checked="true"></td>
 				</tr>
 			</table>
 			</div>
-			<p style="text-align:center;"><button onclick="get_configuration();" >Commencer</button></p>
+			<div style="text-align:center;margin-top:20px;">
+				<label style="text-align:center;"><button onclick="random_configuration();">Random</button></label>
+				<label style="text-align:center;"><button onclick="get_configuration();" >Begin</button></label>
+			</div>
 		</div>
-		<a href="#volet" class="ouvrir">Configuration</a>
-		<a href="#volet_clos" class="fermer">Configuration</a>
+		<a href="#volet" class="ouvrir"><img src="images/tool.png" style="margin-right:12px;"><span style="vertical-align:17%;">Configuration</span></a>
+		<a href="#volet_clos" class="fermer"><img src="images/tool.png" style="margin-right:12px;"><span style="vertical-align:17%;">Configuration</span></a>
 	</div>
 	<div class="content" style="width:100%">
 		<div style="width:100%;padding:10px;text-align:center;" id="game">
-			<div style="margin-bottom:20px;"><img src="images/cross.png"><span id="player_round">Default</span></div>
+			<div style="margin-bottom:14px;">
+				<img id="img_turn" src="images/cross.png" width="40px;">
+				<span id="player_round">Default</span>
+				<button id="start_again" class="hide" onclick="get_configuration();">Start again</button>
+			</div>
 			<table id="table_game" align="center"></table>
 		<div>
-		<p id="winner"></p>
 	</div>
 
 
-		<script src='js/morpion.js'></script>
+		<script src='js/gomoku.js'></script>
 	</body>
 </html>
