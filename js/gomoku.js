@@ -11,7 +11,7 @@ var nb_rows, nb_rows, nb_win;
 var player_red, red_human, red_random, red_ia, black_random, black_human, black_ia;
 
 //Game variables
-var end_game, grille, grilleIA;
+var end_game, grille, grilleIA, searchDepth
 
 
 get_configuration();
@@ -46,6 +46,8 @@ function random_configuration(){
 	document.getElementById("nb_rows").value = nb_rows;
 	document.getElementById("nb_cols").value = nb_cols;
 	document.getElementById("nb_win").value = nb_win;
+	searchDepth = Math.floor((Math.random() * 10) + 1);
+	document.getElementById("searchDepth").value = searchDepth;
 
 	var redp = Math.floor((Math.random() * 3));
 	switch(redp){
@@ -119,6 +121,7 @@ function get_configuration(){
 	//IA
 	red_ia = document.getElementById("red_ia").checked;
 	black_ia = document.getElementById("black_ia").checked;
+	searchDepth = document.getElementById("searchDepth").value;
 
 	//Aleatoire 
 	player_red = Math.random() >= 0.5;
@@ -135,6 +138,11 @@ function get_configuration(){
 		random_player();
 	}else if(black_random && !player_red){
 		random_player();
+	}
+	if(red_ia && player_red){
+		ia_player(searchDepth);
+	}else if(black_ia && !player_red){
+		ia_player(searchDepth);
 	}
 } 
 
@@ -208,9 +216,9 @@ function play(i, j){
 			}
 
 			if(player_red && red_ia){
-				ia_player(2);
+				ia_player(searchDepth);
 			}else if(!player_red && black_ia){
-				ia_player(2);
+				ia_player(searchDepth);
 			}
 
 		}else{
@@ -327,32 +335,33 @@ function random_player() {
 	play(i,j);
 }
 
-function display_grilleIA() {
-	var res;
-	res += "[" 
-	for(i = 0; i<nb_rows; i++){
-		res += i + " : {"
-		for(j=0; j<nb_cols; j++){
-			res += grilleIA[i][j] + " "
-		}
-		res += "} "
-	}
-	res += "]"
-
-	console.log("grilleIA :" + res + "\n");
-}
-
-/*
-	IA Player 
-	Qui regarde jusqu'à une certaine profondeur
-	Pour donner les meilleurs x et y à jouer et appelle play(x,y)
-*/
-
 function winner(){
+	//TO DO 
 	var vic1, vic2;
+	var i, j = 0;
 	for(i=0; i<nb_rows; i++){
 		vic1=vic2=0;
 		for(j=0; j<nb_cols; j++){
+			if(grilleIA[i][j] == 1){
+				vic1++;
+				vic2=0;
+			}else if(grilleIA[i][j] == 2){
+				vic2++;
+				vic1=0;
+			}else{
+				vic1=0; 
+				vic2=0;
+			}
+		}
+		if(vic1 == nb_win)
+			return 1;
+		if(vic2 == nb_win)
+			return 2;
+	}
+	var i, j = 0;
+	for(j=0; j<nb_cols; j++){
+		vic1=vic2=0;
+		for(i=0; i<nb_rows; i++){
 			if(grilleIA[i][j] == 1){
 				vic1++;
 				vic2=0;
@@ -380,9 +389,7 @@ function ia_player(profondeur) {
 		for(j=0; j<nb_cols; j++)
 			grilleIA[i][j] = grille[i][j];
 
-	display_grilleIA();
-
-	var tmp, maxi, maxj;
+	var tmp, maxi, maxj, i, j;
 	var max = -Infinity;
 
 	for(i = 0; i < nb_rows; i++){
@@ -399,16 +406,15 @@ function ia_player(profondeur) {
 			}
 		}
 	}
-	console.log(maxi + " - " + maxj);
 	play(maxi, maxj);
 }
+
 function ia_max(profondeur) {
-	console.log("max");
 	if(profondeur == 0 | winner(grilleIA) != 0)
 		return eval(grilleIA);
 
 	var max = -Infinity;
-	var tmp;
+	var tmp, i, j;
 	for(i = 0; i < nb_rows; i++){
 		for(j = 0; j < nb_cols; j++){
 			if(grilleIA[i][j] == 0){
@@ -426,30 +432,101 @@ function ia_max(profondeur) {
 }
 
 function ia_min(profondeur) {
-	console.log("min");
 	if(profondeur == 0 | winner(grilleIA) != 0)
 		return eval();
 
 	var min = Infinity;
-	var tmp;
+	var tmp, i, j;
 	for(i = 0; i < nb_rows; i++){
 		for(j = 0; j < nb_cols; j++){
 			if(grilleIA[i][j] == 0){
 				grilleIA[i][j] = 1;
 				tmp = ia_max(profondeur-1);
-				if(tmp > min){
+				if(tmp < min){
 					min = tmp; 
 				}
-				display_grilleIA();
 				grilleIA[i][j] = 0;
 
 			}
 		}
 	}
-
 	return min;
 }
 
+var serie1, serie2;
+
+function align_token(nb_align){
+	var cpt1 = cpt2 = i = j = 0;
+	serie1 = serie2 = 0;
+
+	//NO-SE
+	for(i = 0; i < nb_rows; i++){
+		if(grilleIA[i][i] == 1){
+			cpt1++;
+			cpt2 = 0;
+			if(cpt1 == nb_align)
+				serie1++;
+		} else if(grilleIA[i][i] == 2){
+			cpt2++;
+			cpt1 = 0;
+			if(cpt2 == nb_align)
+				serie2++;
+		}
+	}
+	cpt1 = cpt2 = 0;
+
+	//SO-NE
+	for(i = 0; i < nb_rows; i++){
+		if(grilleIA[i][2-i] == 1){
+			cpt1++;
+			cpt2 = 0;
+			if(cpt1 == nb_align)
+				serie1++;
+		} else if(grilleIA[i][2-i] == 2){
+			cpt2++;
+			cpt1 = 0;
+			if(cpt2 == nb_align)
+				serie2++;
+		}
+	}
+
+	//In line
+	for(i = 0; i < nb_rows; i++){
+		cpt1 = cpt2 = 0;
+
+		//Horizontalement
+		for(j = 0; j < nb_cols; j++){
+			if(grilleIA[i][j] == 1){
+				cpt1++;
+				cpt2 = 0;
+				if(cpt1 == nb_align)
+					serie1++;
+			} else if(grilleIA[i][j] == 2){
+				cpt2++;
+				cpt1 = 0;
+				if(cpt2 == nb_align)
+					serie2++;
+			}
+		}
+
+		cpt1 = cpt2 = 0;
+
+		//Verticalement
+		for(j = 0; j < nb_cols; j++){
+			if(grilleIA[j][i] == 1){
+				cpt1++;
+				cpt2 = 0;
+				if(cpt1 == nb_align)
+					serie1++;
+			} else if(grilleIA[j][i] == 2){
+				cpt2++;
+				cpt1 = 0;
+				if(cpt2 == nb_align)
+					serie2++;
+			}
+		}
+	}
+}
 
 /*Automatiser 1 2 player ia
 */
@@ -462,10 +539,13 @@ function eval() {
 			if(grilleIA[i][j] != 0)
 				nbPions++;
 
-	if(winners = winner() != 0){
-		if(winners == 1)
-			return 1000 - nbPions;
-		else
-			return -1000 + nbPions;
+	align_token(nb_win);
+	if(serie1 == 1){
+		return 1000 - nbPions;
+	}else if(serie2 == 1){
+		return -1000 + nbPions;
 	}
+
+	align_token(nb_win-1);
+	return (serie1-serie2);
 }
