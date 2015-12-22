@@ -140,9 +140,9 @@ function get_configuration(){
 		random_player();
 	}
 	if(red_ia && player_red){
-		ia_player(searchDepth);
+		ia_player_red(searchDepth);
 	}else if(black_ia && !player_red){
-		ia_player(searchDepth);
+		ia_player_black(searchDepth);
 	}
 } 
 
@@ -175,9 +175,6 @@ function create_table(){
 		}
 	}
 	document.getElementById("game").appendChild(table_game);
-	var winner_text = document.createElement("winner");
-	winner_text.id = "winner";
-	document.body.appendChild(winner_text);
 }
 
 function setClick(x,y){
@@ -200,11 +197,9 @@ function play(i, j){
 			if(player_red){
 				document.getElementById("img_turn").src = "images/cross.png";
 				document.getElementById("player_round").innerHTML = "Red win !";
-				document.getElementById("start_again").class = "show";
 			}else{
 				document.getElementById("img_turn").src = "images/circle.png";
 				document.getElementById("player_round").innerHTML = "Black win !";
-				document.getElementById("start_again").class = "show";
 			}
 		}else if(end_game == 1){
 			player_red = ! player_red;
@@ -216,15 +211,14 @@ function play(i, j){
 			}
 
 			if(player_red && red_ia){
-				ia_player(searchDepth);
+				ia_player_red(searchDepth);
 			}else if(!player_red && black_ia){
-				ia_player(searchDepth);
+				ia_player_black(searchDepth);
 			}
 
 		}else{
 			document.getElementById("img_turn").src = "images/circleandcross.png";
 			document.getElementById("player_round").innerHTML = "Egality";
-			document.getElementById("start_again").class = "show";
 		}
 	}
 }
@@ -335,52 +329,7 @@ function random_player() {
 	play(i,j);
 }
 
-function winner(){
-	//TO DO 
-	var vic1, vic2;
-	var i, j = 0;
-	for(i=0; i<nb_rows; i++){
-		vic1=vic2=0;
-		for(j=0; j<nb_cols; j++){
-			if(grilleIA[i][j] == 1){
-				vic1++;
-				vic2=0;
-			}else if(grilleIA[i][j] == 2){
-				vic2++;
-				vic1=0;
-			}else{
-				vic1=0; 
-				vic2=0;
-			}
-		}
-		if(vic1 == nb_win)
-			return 1;
-		if(vic2 == nb_win)
-			return 2;
-	}
-	var i, j = 0;
-	for(j=0; j<nb_cols; j++){
-		vic1=vic2=0;
-		for(i=0; i<nb_rows; i++){
-			if(grilleIA[i][j] == 1){
-				vic1++;
-				vic2=0;
-			}else if(grilleIA[i][j] == 2){
-				vic2++;
-				vic1=0;
-			}else{
-				vic1=0; 
-				vic2=0;
-			}
-		}
-		if(vic1 == nb_win)
-			return 1;
-		if(vic2 == nb_win)
-			return 2;
-	}
-	return 0;
-}
-function ia_player(profondeur) {
+function ia_player_red(profondeur) {
     grilleIA = new Array(nb_rows);
 	for(i=0; i<nb_rows; i++)
 		grilleIA[i] = new Array(nb_cols+1);
@@ -409,9 +358,41 @@ function ia_player(profondeur) {
 	play(maxi, maxj);
 }
 
+
+function ia_player_black(profondeur) {
+    grilleIA = new Array(nb_rows);
+	for(i=0; i<nb_rows; i++)
+		grilleIA[i] = new Array(nb_cols+1);
+
+	for(i = 0; i<nb_rows; i++)
+		for(j=0; j<nb_cols; j++)
+			grilleIA[i][j] = grille[i][j];
+
+	var tmp, mini, minj, i, j;
+	var min = Infinity;
+
+	for(i = 0; i < nb_rows; i++){
+		for(j = 0; j < nb_cols; j++){
+			if(grilleIA[i][j] == 0){
+				grilleIA[i][j] = 2;
+				tmp = ia_max(profondeur-1);
+				if(tmp < min){
+					min = tmp; 
+					mini = i; 
+					minj = j;
+				}
+				grilleIA[i][j] = 0;
+			}
+		}
+	}
+	play(mini, minj);
+}
+
 function ia_max(profondeur) {
-	if(profondeur == 0 | winner(grilleIA) != 0)
-		return eval(grilleIA);
+	if(profondeur == 0 | align_token(nb_win) != 0) {
+		console.log(eval());
+		return eval();
+	}
 
 	var max = -Infinity;
 	var tmp, i, j;
@@ -432,7 +413,7 @@ function ia_max(profondeur) {
 }
 
 function ia_min(profondeur) {
-	if(profondeur == 0 | winner(grilleIA) != 0)
+	if(profondeur == 0 | align_token(nb_win) != 0)
 		return eval();
 
 	var min = Infinity;
@@ -526,10 +507,13 @@ function align_token(nb_align){
 			}
 		}
 	}
+
+	if(nb_align == nb_win && (serie1 == 1 || serie2 == 1))
+		return 1;
+
+	return 0;
 }
 
-/*Automatiser 1 2 player ia
-*/
 function eval() {
 	var winners;
 	var nbPions = 0;
