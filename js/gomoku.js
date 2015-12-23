@@ -140,9 +140,9 @@ function get_configuration(){
 		random_player();
 	}
 	if(red_ia && player_red){
-		ia_player_red(searchDepth);
+		ia_player(searchDepth);
 	}else if(black_ia && !player_red){
-		ia_player_black(searchDepth);
+		ia_player(searchDepth);
 	}
 } 
 
@@ -168,6 +168,7 @@ function create_table(){
 		for(j = 0; j < nb_cols; j++) {
 			cell = row.insertCell(j);
 			cell.id = "game" + i + "_" + j;
+			console.log(cell.id);
 			cell.onclick = setClick(i, j);
 			cell.width = size;
 			cell.height = size;
@@ -211,9 +212,9 @@ function play(i, j){
 			}
 
 			if(player_red && red_ia){
-				ia_player_red(searchDepth);
+				ia_player(searchDepth);
 			}else if(!player_red && black_ia){
-				ia_player_black(searchDepth);
+				ia_player(searchDepth);
 			}
 
 		}else{
@@ -329,7 +330,8 @@ function random_player() {
 	play(i,j);
 }
 
-function ia_player_red(profondeur) {
+function ia_player(profondeur) {
+	console.log("ia_player");
     grilleIA = new Array(nb_rows);
 	for(i=0; i<nb_rows; i++)
 		grilleIA[i] = new Array(nb_cols+1);
@@ -338,61 +340,46 @@ function ia_player_red(profondeur) {
 		for(j=0; j<nb_cols; j++)
 			grilleIA[i][j] = grille[i][j];
 
-	var tmp, maxi, maxj, i, j;
+	var tmp = maxi = maxj = x = y = 0;
 	var max = -Infinity;
+	var min = Infinity;
 
-	for(i = 0; i < nb_rows; i++){
-		for(j = 0; j < nb_cols; j++){
-			if(grilleIA[i][j] == 0){
-				grilleIA[i][j] = 1;
-				tmp = ia_min(profondeur-1);
-				if(tmp > max){
-					max = tmp; 
-					maxi = i; 
-					maxj = j;
+	for(x = 0; x < nb_rows; x++){
+		for(y = 0; y < nb_cols; y++){
+			if(grilleIA[x][y] == 0){
+				//If it's a max node
+				if(player_red) {
+					grilleIA[x][y] = 1;
+					tmp = ia_min(profondeur-1);
+					if(tmp > max){
+						max = tmp; 
+						maxi = x; 
+						maxj = y;
+					}
+					grilleIA[x][y] = 0;
+
+				//If it's a min node
+				}else{
+					grilleIA[x][y] = 2;
+					tmp = ia_max(profondeur-1);
+					if(tmp < min){
+						min = tmp; 
+						maxi = x; 
+						maxj = y;
+					}
+					grilleIA[x][y] = 0;
 				}
-				grilleIA[i][j] = 0;
 			}
 		}
 	}
+	console.log("play " + maxi + " _ " + maxj);
 	play(maxi, maxj);
 }
 
 
-function ia_player_black(profondeur) {
-    grilleIA = new Array(nb_rows);
-	for(i=0; i<nb_rows; i++)
-		grilleIA[i] = new Array(nb_cols+1);
-
-	for(i = 0; i<nb_rows; i++)
-		for(j=0; j<nb_cols; j++)
-			grilleIA[i][j] = grille[i][j];
-
-	var tmp, mini, minj, i, j;
-	var min = Infinity;
-
-	for(i = 0; i < nb_rows; i++){
-		for(j = 0; j < nb_cols; j++){
-			if(grilleIA[i][j] == 0){
-				grilleIA[i][j] = 2;
-				tmp = ia_max(profondeur-1);
-				if(tmp < min){
-					min = tmp; 
-					mini = i; 
-					minj = j;
-				}
-				grilleIA[i][j] = 0;
-			}
-		}
-	}
-	play(mini, minj);
-}
-
 function ia_max(profondeur) {
-	if(profondeur == 0 | align_token(nb_win) != 0) {
-		console.log(eval());
+	if(profondeur == 0 | winner() != 0)
 		return eval();
-	}
 
 	var max = -Infinity;
 	var tmp, i, j;
@@ -401,6 +388,7 @@ function ia_max(profondeur) {
 			if(grilleIA[i][j] == 0){
 				grilleIA[i][j] = 2;
 				tmp = ia_min(profondeur-1);
+				console.log("Min - case " + i + "_" + j + " : " + tmp);
 				if(tmp > max){
 					max = tmp; 
 				}
@@ -408,12 +396,11 @@ function ia_max(profondeur) {
 			}
 		}
 	}
-
 	return max;
 }
 
 function ia_min(profondeur) {
-	if(profondeur == 0 | align_token(nb_win) != 0)
+	if(profondeur == 0 | winner() != 0)
 		return eval();
 
 	var min = Infinity;
@@ -423,6 +410,7 @@ function ia_min(profondeur) {
 			if(grilleIA[i][j] == 0){
 				grilleIA[i][j] = 1;
 				tmp = ia_max(profondeur-1);
+				console.log("Max - case " + i + "_" + j + " : " + tmp);
 				if(tmp < min){
 					min = tmp; 
 				}
@@ -507,29 +495,62 @@ function align_token(nb_align){
 			}
 		}
 	}
-
-	if(nb_align == nb_win && (serie1 == 1 || serie2 == 1))
-		return 1;
-
-	return 0;
 }
 
 function eval() {
 	var winners;
-	var nbPions = 0;
+	var nbPions = i = j = 0;
 
 	for(i = 0; i < nb_rows; i++)
 		for(j = 0; j < nb_cols; j++)
 			if(grilleIA[i][j] != 0)
 				nbPions++;
 
-	align_token(nb_win);
-	if(serie1 == 1){
-		return 1000 - nbPions;
-	}else if(serie2 == 1){
-		return -1000 + nbPions;
+	if(win = winner() != 0){
+		if(win == 1){
+			return 1000 - nbPions;
+		}else if(win == 2){
+			return -1000 + nbPions;
+		}else{
+			return 0;
+		}
 	}
 
 	align_token(nb_win-1);
 	return (serie1-serie2);
 }
+
+function winner(){
+     var i = j = 0;
+
+     align_token(nb_win);
+
+     if(serie1 == 1)
+     {
+     	  console.log("red win");
+          return 1;
+     }
+     else if(serie2 == 1)
+     {
+          return 2;
+          console.log("black win");
+     }
+     else
+     {
+          //Si le jeu n'est pas fini et que personne n'a gagné, on renvoie 0
+          for(i=0;i<nb_rows;i++)
+          {
+               for(j=0;j<nb_cols;j++)
+               {
+                    if(grilleIA[i][j] == 0)
+                    {
+                         return 0;
+                    }
+               }
+          }
+     }
+
+     //Si le jeu est fini et que personne n'a gagné, on renvoie 3
+     return 3;
+}
+
