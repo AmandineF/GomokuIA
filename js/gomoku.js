@@ -11,7 +11,7 @@ var nb_rows, nb_rows, nb_win;
 var player_red, red_human, red_random, red_ia, black_random, black_human, black_ia;
 
 //Game variables
-var end_game, grille, grilleIA, searchDepth
+var end_game, grille, searchDepth;
 
 
 get_configuration();
@@ -140,9 +140,9 @@ function get_configuration(){
 		random_player();
 	}
 	if(red_ia && player_red){
-		ia_player(searchDepth);
+		iaPlay(grille, searchDepth);
 	}else if(black_ia && !player_red){
-		ia_player(searchDepth);
+		iaPlay(grille, searchDepth);
 	}
 } 
 
@@ -168,7 +168,6 @@ function create_table(){
 		for(j = 0; j < nb_cols; j++) {
 			cell = row.insertCell(j);
 			cell.id = "game" + i + "_" + j;
-			console.log(cell.id);
 			cell.onclick = setClick(i, j);
 			cell.width = size;
 			cell.height = size;
@@ -212,9 +211,9 @@ function play(i, j){
 			}
 
 			if(player_red && red_ia){
-				ia_player(searchDepth);
+				iaPlay(grille, searchDepth);
 			}else if(!player_red && black_ia){
-				ia_player(searchDepth);
+				iaPlay(grille, searchDepth);
 			}
 
 		}else{
@@ -330,91 +329,114 @@ function random_player() {
 	play(i,j);
 }
 
-function ia_player(profondeur) {
-	console.log("ia_player");
-    grilleIA = new Array(nb_rows);
-	for(i=0; i<nb_rows; i++)
-		grilleIA[i] = new Array(nb_cols+1);
 
-	for(i = 0; i<nb_rows; i++)
-		for(j=0; j<nb_cols; j++)
-			grilleIA[i][j] = grille[i][j];
+function pasteGrid(grid) {
+	var newGrid = [];
+	for(var i = 0; i < nb_rows; i++)
+		newGrid[i] = grid[i].concat([]);
+	return newGrid;
+}
 
-	var tmp = maxi = maxj = x = y = 0;
+function display_grid(grid) {
+	console.log("Grid - " + grid.length + " x " + grid[0].length);
+	var s;
+	for(var i = 0; i < grid.length; i++){
+		for(var j = 0; j < grid[0].length; j++){
+			s+= grid[i][j] + " ";
+		}
+		s+= "\n";
+	}
+}
+var serie1, serie2;
+
+function iaPlay(originalGrid, depth) {
+	var iaGrid = pasteGrid(originalGrid);
+	iaPlayer(iaGrid, depth);
+}
+
+function iaPlayer(grid, depth) {
+
+	var tmp, xplay, yplay;
 	var max = -Infinity;
 	var min = Infinity;
+	var alpha = -Infinity;
+	var beta = Infinity;
 
-	for(x = 0; x < nb_rows; x++){
-		for(y = 0; y < nb_cols; y++){
-			if(grilleIA[x][y] == 0){
+	for(var x = 0; x < grid.length; x++){
+		for(var y = 0; y < grid[0].length; y++){
+			if(grid[x][y] == 0){
 				//If it's a max node
 				if(player_red) {
-					grilleIA[x][y] = 1;
-					tmp = ia_min(profondeur-1);
+					grid[x][y] = 1;
+					tmp = iaMin(grid, depth-1, alpha, beta);
 					if(tmp > max){
 						max = tmp; 
-						maxi = x; 
-						maxj = y;
+						xplay = x; 
+						yplay = y;
 					}
-					grilleIA[x][y] = 0;
+					grid[x][y] = 0;
 
 				//If it's a min node
 				}else{
-					grilleIA[x][y] = 2;
-					tmp = ia_max(profondeur-1);
+					grid[x][y] = 2;
+					tmp = iaMax(grid, depth-1, alpha, beta);
 					if(tmp < min){
 						min = tmp; 
-						maxi = x; 
-						maxj = y;
+						xplay = x; 
+						yplay = y;
 					}
-					grilleIA[x][y] = 0;
+					grid[x][y] = 0;
 				}
 			}
 		}
 	}
-	console.log("play " + maxi + " _ " + maxj);
-	play(maxi, maxj);
+	player_red? console.log(max) : console.log(min);
+	play(xplay, yplay);
 }
 
-
-function ia_max(profondeur) {
-	if(profondeur == 0 | winner() != 0)
-		return eval();
+function iaMax(grid, depth, alpha, beta) {
+	if(depth == 0 | winner(grid) != 0)
+		return iaRanting(grid);
 
 	var max = -Infinity;
-	var tmp, i, j;
-	for(i = 0; i < nb_rows; i++){
-		for(j = 0; j < nb_cols; j++){
-			if(grilleIA[i][j] == 0){
-				grilleIA[i][j] = 2;
-				tmp = ia_min(profondeur-1);
-				console.log("Min - case " + i + "_" + j + " : " + tmp);
+	var tmp;
+	for(var i = 0; i < grid.length; i++){
+		for(var j = 0; j < grid[0].length; j++){
+			if(grid[i][j] == 0){
+				grid[i][j] = 2;
+				tmp = iaMin(grid, depth-1, alpha, beta);
 				if(tmp > max){
 					max = tmp; 
 				}
-				grilleIA[i][j] = 0;
+				if(alpha >= max)
+					return max;
+				beta = Math.min(beta, max);
+				grid[i][j] = 0;
 			}
 		}
 	}
 	return max;
 }
 
-function ia_min(profondeur) {
-	if(profondeur == 0 | winner() != 0)
-		return eval();
+
+function iaMin(grid, depth, alpha, beta) {
+	if(depth == 0 | winner(grid) != 0)
+		return iaRanting(grid);
 
 	var min = Infinity;
-	var tmp, i, j;
-	for(i = 0; i < nb_rows; i++){
-		for(j = 0; j < nb_cols; j++){
-			if(grilleIA[i][j] == 0){
-				grilleIA[i][j] = 1;
-				tmp = ia_max(profondeur-1);
-				console.log("Max - case " + i + "_" + j + " : " + tmp);
+	var tmp;
+	for(var i = 0; i < grid.length; i++){
+		for(var j = 0; j < grid[0].length; j++){
+			if(grid[i][j] == 0){
+				grid[i][j] = 1;
+				tmp = iaMax(grid, depth-1, alpha, beta);
 				if(tmp < min){
 					min = tmp; 
 				}
-				grilleIA[i][j] = 0;
+				if(min >= beta)
+					return min;
+				alpha = Math.max(alpha, min);
+				grid[i][j] = 0;
 
 			}
 		}
@@ -422,20 +444,58 @@ function ia_min(profondeur) {
 	return min;
 }
 
-var serie1, serie2;
+function iaRanting(grid) {
+	var nbPions = 0;
 
-function align_token(nb_align){
-	var cpt1 = cpt2 = i = j = 0;
+	for(var i = 0; i < grid.length; i++)
+		for(var j = 0; j < grid[0].length; j++)
+			if(grid[i][j] != 0)
+				nbPions++;
+
+	var theWinner = winner(grid);
+	if(theWinner != 0){
+		if(theWinner == 1){
+			return 1000 - nbPions;
+		}else if(theWinner == 2){
+			return -1000 + nbPions;
+		}else{
+			return 0;
+		}
+	}
+
+	alignToken(grid, nb_win-1);
+	return (serie1-serie2);
+}
+
+function winner(grid){
+    alignToken(grid, nb_win);
+
+    if(serie1 == 1)
+        return 1;
+    else if(serie2 == 1)
+        return 2;
+    else
+    {
+	    for(var i=0;i<grid.length;i++)
+	        for(var j=0;j<grid[0].length;j++)
+	            if(grid[i][j] == 0)
+	                return 0;
+    }
+    return 3;
+}
+
+function alignToken(grid, nb_align){
+	var cpt1 = cpt2 = 0;
 	serie1 = serie2 = 0;
 
 	//NO-SE
-	for(i = 0; i < nb_rows; i++){
-		if(grilleIA[i][i] == 1){
+	for(var i = 0; i < grid.length; i++){
+		if(grid[i][i] == 1){
 			cpt1++;
 			cpt2 = 0;
 			if(cpt1 == nb_align)
 				serie1++;
-		} else if(grilleIA[i][i] == 2){
+		} else if(grid[i][i] == 2){
 			cpt2++;
 			cpt1 = 0;
 			if(cpt2 == nb_align)
@@ -445,13 +505,13 @@ function align_token(nb_align){
 	cpt1 = cpt2 = 0;
 
 	//SO-NE
-	for(i = 0; i < nb_rows; i++){
-		if(grilleIA[i][2-i] == 1){
+	for(var i = 0; i < grid.length; i++){
+		if(grid[i][2-i] == 1){
 			cpt1++;
 			cpt2 = 0;
 			if(cpt1 == nb_align)
 				serie1++;
-		} else if(grilleIA[i][2-i] == 2){
+		} else if(grid[i][2-i] == 2){
 			cpt2++;
 			cpt1 = 0;
 			if(cpt2 == nb_align)
@@ -460,17 +520,17 @@ function align_token(nb_align){
 	}
 
 	//In line
-	for(i = 0; i < nb_rows; i++){
+	for(var i = 0; i < grid.length; i++){
 		cpt1 = cpt2 = 0;
 
 		//Horizontalement
-		for(j = 0; j < nb_cols; j++){
-			if(grilleIA[i][j] == 1){
+		for(var j = 0; j < grid[0].length; j++){
+			if(grid[i][j] == 1){
 				cpt1++;
 				cpt2 = 0;
 				if(cpt1 == nb_align)
 					serie1++;
-			} else if(grilleIA[i][j] == 2){
+			} else if(grid[i][j] == 2){
 				cpt2++;
 				cpt1 = 0;
 				if(cpt2 == nb_align)
@@ -481,13 +541,13 @@ function align_token(nb_align){
 		cpt1 = cpt2 = 0;
 
 		//Verticalement
-		for(j = 0; j < nb_cols; j++){
-			if(grilleIA[j][i] == 1){
+		for(var j = 0; j < grid[0].length; j++){
+			if(grid[j][i] == 1){
 				cpt1++;
 				cpt2 = 0;
 				if(cpt1 == nb_align)
 					serie1++;
-			} else if(grilleIA[j][i] == 2){
+			} else if(grid[j][i] == 2){
 				cpt2++;
 				cpt1 = 0;
 				if(cpt2 == nb_align)
@@ -497,60 +557,6 @@ function align_token(nb_align){
 	}
 }
 
-function eval() {
-	var winners;
-	var nbPions = i = j = 0;
 
-	for(i = 0; i < nb_rows; i++)
-		for(j = 0; j < nb_cols; j++)
-			if(grilleIA[i][j] != 0)
-				nbPions++;
 
-	if(win = winner() != 0){
-		if(win == 1){
-			return 1000 - nbPions;
-		}else if(win == 2){
-			return -1000 + nbPions;
-		}else{
-			return 0;
-		}
-	}
-
-	align_token(nb_win-1);
-	return (serie1-serie2);
-}
-
-function winner(){
-     var i = j = 0;
-
-     align_token(nb_win);
-
-     if(serie1 == 1)
-     {
-     	  console.log("red win");
-          return 1;
-     }
-     else if(serie2 == 1)
-     {
-          return 2;
-          console.log("black win");
-     }
-     else
-     {
-          //Si le jeu n'est pas fini et que personne n'a gagné, on renvoie 0
-          for(i=0;i<nb_rows;i++)
-          {
-               for(j=0;j<nb_cols;j++)
-               {
-                    if(grilleIA[i][j] == 0)
-                    {
-                         return 0;
-                    }
-               }
-          }
-     }
-
-     //Si le jeu est fini et que personne n'a gagné, on renvoie 3
-     return 3;
-}
 
