@@ -8,7 +8,7 @@
 var nb_rows, nb_rows, nb_win;
 
 //Players variables
-var player_red, red_human, red_random, red_ia, black_random, black_human, black_ia;
+var player, red_human, red_random, red_ia, black_random, black_human, black_ia;
 
 //Game variables
 var end_game, grille, searchDepth;
@@ -86,7 +86,7 @@ function random_configuration(){
  * Update the html element player_round
  */
 function set_player(){
-	if(player_red){
+	if(player == 1){
 		document.getElementById("img_turn").src = "images/cross.png";
 		if(red_human)
 			document.getElementById("player_round").innerHTML = "Its red turn";
@@ -124,7 +124,7 @@ function get_configuration(){
 	searchDepth = document.getElementById("searchDepth").value;
 
 	//Aleatoire 
-	player_red = Math.random() >= 0.5;
+	player = Math.random() >= 0.5 ? 1 : 2;
 	set_player();
 
 	end_game = 1;
@@ -134,14 +134,14 @@ function get_configuration(){
 
 	create_table();
 
-	if(red_random && player_red){
+	if(red_random && (player == 1)){
 		random_player();
-	}else if(black_random && !player_red){
+	}else if(black_random && !(player == 1)){
 		random_player();
 	}
-	if(red_ia && player_red){
+	if(red_ia && (player == 1)){
 		iaPlay(grille, searchDepth);
-	}else if(black_ia && !player_red){
+	}else if(black_ia && !(player == 1)){
 		iaPlay(grille, searchDepth);
 	}
 } 
@@ -177,15 +177,27 @@ function create_table(){
 	document.getElementById("game").appendChild(table_game);
 }
 
+/**
+ * @function setClick(x,y)
+ * Handle the event when the user click on a cell
+ * @param x - abscissa of the token 
+ * @param y -  ordinate of the token 
+ */
 function setClick(x,y){
     return function(){
         play(x,y);
     };
 }
 
+/**
+ * @function play(i,j)
+ * Play the token at the coordinates x and y 
+ * @param i - abscissa of the token 
+ * @param j -  ordinate of the token 
+ */
 function play(i, j){	
 	if(end_game == 1 && get_col(i,j) != "red" && get_col(i,j) != "black"){
-		if(player_red){
+		if(player == 1){
 			grille[i][j] = 1;
 			document.getElementById("game" + i + "_" + j).className = "red";
 		}else{
@@ -194,7 +206,7 @@ function play(i, j){
 		}
 		end_game = check_win(i, j, get_col(i,j));
 		if(end_game == 0){
-			if(player_red){
+			if(player == 1){
 				document.getElementById("img_turn").src = "images/cross.png";
 				document.getElementById("player_round").innerHTML = "Red win !";
 			}else{
@@ -202,17 +214,20 @@ function play(i, j){
 				document.getElementById("player_round").innerHTML = "Black win !";
 			}
 		}else if(end_game == 1){
-			player_red = ! player_red;
+			if(player == 1)
+			 	player = 2;
+			 else
+			 	player = 1;
 			set_player();
-			if(player_red && red_random){
+			if((player == 1) && red_random){
 				random_player();
-			}else if(!player_red && black_random){
+			}else if((player == 2) && black_random){
 				random_player();
 			}
 
-			if(player_red && red_ia){
+			if((player == 1)  && red_ia){
 				iaPlay(grille, searchDepth);
-			}else if(!player_red && black_ia){
+			}else if((player == 2) && black_ia){
 				iaPlay(grille, searchDepth);
 			}
 
@@ -244,7 +259,7 @@ function check_win(x, y, col){
 	var checkH = 0, checkV = 0, checkNOSE = 0, checkSONE = 0;
 	var xt, yt;
 
-	//vérification horizontale
+	//horizontal verification
 	xt=x;
 	yt=y;
 	while(xt>=0 && get_col(xt,yt)===col){
@@ -258,7 +273,7 @@ function check_win(x, y, col){
 		checkH++;
 	}
 
-	//vérification verticale
+	//vertical verification
 	xt=x;
 	yt=y;
 	while(yt>=0 && get_col(xt,yt)===col){
@@ -272,7 +287,7 @@ function check_win(x, y, col){
 		checkV++;
 	}
 
-	//vérification diagonale NO-SE
+	//NO-SE verification
 	xt=x;
 	yt=y;
 	while(xt>=0 && yt>=0 && get_col(xt,yt)===col){
@@ -289,7 +304,7 @@ function check_win(x, y, col){
 		checkNOSE++;
 	}
 
-	//vérification diagonale SO-NE
+	//SO-NE verification
 	xt=x;
 	yt=y;
 	while(xt>=0 && yt<nb_cols && get_col(xt,yt)===col){
@@ -355,42 +370,34 @@ function iaPlay(originalGrid, depth) {
 }
 
 function iaPlayer(grid, depth) {
+	//console.log("------------------------------------------");
 
 	var tmp, xplay, yplay;
 	var max = -Infinity;
-	var min = Infinity;
-	var alpha = -Infinity;
+	var alpha = - Infinity;
 	var beta = Infinity;
-
 	for(var x = 0; x < grid.length; x++){
 		for(var y = 0; y < grid[0].length; y++){
 			if(grid[x][y] == 0){
-				//If it's a max node
-				if(player_red) {
-					grid[x][y] = 1;
-					tmp = iaMin(grid, depth-1, alpha, beta);
-					if(tmp > max){
-						max = tmp; 
-						xplay = x; 
-						yplay = y;
-					}
-					grid[x][y] = 0;
+				grid[x][y] = player;
+				//console.log("IA PLayer play " + player + " - " + x + "-" + y+ " - depth : " + (depth-1));
 
-				//If it's a min node
-				}else{
-					grid[x][y] = 2;
-					tmp = iaMax(grid, depth-1, alpha, beta);
-					if(tmp < min){
-						min = tmp; 
-						xplay = x; 
-						yplay = y;
-					}
-					grid[x][y] = 0;
+				tmp = iaMin(grid, depth-1, alpha, beta);
+				//console.log("TMP : " + tmp)
+				if(tmp > max || ((tmp == max) && (Math.random() >= 0.5))) {
+					max = tmp; 
+					xplay = x; 
+					yplay = y;
+					//console.log("NEW MAX : " + max);
 				}
+				/*if(max >= beta){
+					play(xplay, yplay);
+				}
+				alpha = Math.max(alpha, max);*/
+				grid[x][y] = 0;
 			}
 		}
 	}
-	player_red? console.log(max) : console.log(min);
 	play(xplay, yplay);
 }
 
@@ -399,18 +406,18 @@ function iaMax(grid, depth, alpha, beta) {
 		return iaRanting(grid);
 
 	var max = -Infinity;
-	var tmp;
+	var tmp = 0;
 	for(var i = 0; i < grid.length; i++){
 		for(var j = 0; j < grid[0].length; j++){
 			if(grid[i][j] == 0){
-				grid[i][j] = 2;
+				grid[i][j] = player;
+				//console.log("MAX play " + player  + "- "   + i + "-" + j + " - depth : " + (depth-1));
 				tmp = iaMin(grid, depth-1, alpha, beta);
-				if(tmp > max){
+				if(tmp > max || ((tmp == max) && (Math.random() >= 0.5)))
 					max = tmp; 
-				}
-				if(alpha >= max)
+				/*if(max >= beta)
 					return max;
-				beta = Math.min(beta, max);
+				alpha = Math.max(alpha, max);*/
 				grid[i][j] = 0;
 			}
 		}
@@ -420,22 +427,28 @@ function iaMax(grid, depth, alpha, beta) {
 
 
 function iaMin(grid, depth, alpha, beta) {
-	if(depth == 0 | winner(grid) != 0)
+	var token = 0;
+	if(depth == 0 | winner(grid) !=0)
 		return iaRanting(grid);
 
+	if(player == 1)
+		token = 2;
+	else
+		token = 1;
+
 	var min = Infinity;
-	var tmp;
+	var tmp = 0;
 	for(var i = 0; i < grid.length; i++){
 		for(var j = 0; j < grid[0].length; j++){
 			if(grid[i][j] == 0){
-				grid[i][j] = 1;
+				grid[i][j] = token;
+				//console.log("MIN play " + token + "- " + i + "-" + j + " - depth : " + (depth-1));
 				tmp = iaMax(grid, depth-1, alpha, beta);
-				if(tmp < min){
+				if(tmp < min || ((tmp == min) && (Math.random() >= 0.5)))
 					min = tmp; 
-				}
-				if(min >= beta)
+				/*if(alpha >= min)
 					return min;
-				alpha = Math.max(alpha, min);
+				beta = Math.min(beta, min);*/
 				grid[i][j] = 0;
 
 			}
@@ -453,26 +466,28 @@ function iaRanting(grid) {
 				nbPions++;
 
 	var theWinner = winner(grid);
-	if(theWinner != 0){
-		if(theWinner == 1){
+	if(theWinner != 0 && theWinner != 3){
+		if(theWinner == player){
 			return 1000 - nbPions;
-		}else if(theWinner == 2){
-			return -1000 + nbPions;
 		}else{
-			return 0;
+			return -1000 + nbPions;
 		}
 	}
 
 	alignToken(grid, nb_win-1);
-	return (serie1-serie2);
+	var res;
+	if(player == 1)
+		res = serie1-serie2;
+	else 
+		res = serie2-serie1;
+	return res;
 }
 
 function winner(grid){
     alignToken(grid, nb_win);
-
-    if(serie1 == 1)
+    if(serie1 >= 1)
         return 1;
-    else if(serie2 == 1)
+    else if(serie2 >= 1)
         return 2;
     else
     {
