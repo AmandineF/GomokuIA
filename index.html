@@ -5,65 +5,91 @@
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	</head>
 	<link rel="stylesheet" type="text/css" href="css/gomoku.css">
-	<body>
-	<div id="title">
-			<img src="images/logo.png" width="400px">
-	</div>
-	<div id="volet" class="configuration">
-		<div>
-			<div style="margin-bottom:30px;">
-				<p  class="config_label">
-				    <div style="float:left;width:50%;text-align:center;">Lines <input id="nb_rows" type="number" min="1" max="15" value="3"></div>
-					<div style="margin-left:50%;text-align:center;">Columns <input id="nb_cols" type="number" min="1" max="15" value="3"></div>
-				</p>
-				<div style="margin-left:30px;" class="config_label">Token to align <input id="nb_win" type="number" min="2" value="3" max="15"></div>
-				<div style="margin-left:30px;" class="config_label">Search depth <input id="searchDepth" type="number" min="1" value="4" max="10"></div>
-				
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+	<body style="text-align:left;">
+		<div class="container">
+			<div class="row">
+			<div id="princ" class="col-xs-12">
+				<div class="row" style="margin-top:10px">
+					<div class="col-xs-6">
+						<img src="images/gomoku.png" width="150px"/>
+					</div>
+					<div class="col-xs-6 text-right">
+						<button id="btnOpen"  onclick="openThat()"  class="button redbutton"><img src="images/configuration.png"/></button>
+					</div>
+				</div>
+
+				<div class="row text-center" style="margin-top:20px;">
+						<div style="margin-bottom:20px;"><img id="img_turn" src="images/delete.png" width="2%"><span id="player_round" class="turn">It is red turn ! </span><button id="continue" onclick="continueGame();" class="button contButton">Continue</button></div>
+						<div id="game">
+						<table id="table_game">
+							<tr><td></td><td></td><td></td></tr>
+							<tr><td></td><td></td><td></td></tr>
+							<tr><td></td><td></td><td></td></tr>
+						</table>
+						</div>
+						<div style="margin-top:30px;"><span class="turn"><img src="images/delete.png" width="2%"> Player <span class="number" id="red_points">8</span> - <span id="blue_points" class="number">3</span> Player <img src="images/geometry.png" width="2%"></span></div>
+				</div>
 			</div>
-			<div>
-			<table class="config_label" style="width:80%;margin-left:30px;">
-				<tr>
-					<td style="width:60%;"></td>
-					<td style="text-align:center;width:20%;">Red</td>
-					<td style="text-align:center;width:20%;">Black</td>
-				</tr>
-				<tr>
-					<td>Human</td>
-					<td style="text-align:center;"><input name="red" id="red_human" type="radio"  checked="true"></td>
-					<td style="text-align:center;"><input name="black" id="black_human" type="radio"></td>
-				</tr>
-				<tr>
-					<td>Computer</td>
-					<td style="text-align:center;"><input name="red" id="red_ia" type="radio"></td>
-					<td style="text-align:center;"><input name="black" id="black_ia" type="radio" checked="true"></td>
-				</tr>
-				<tr>
-					<td>Random</td>
-					<td style="text-align:center;"><input name="red" id="red_random" type="radio"></td>
-					<td style="text-align:center;"><input name="black" id="black_random" type="radio"></td>
-				</tr>
-			</table>
+			<div id="config" class="col-xs-3 text-right">
+				<div style="margin-top:10px">
+					<a id="btnClose" onclick="closeThat()" class="button whitebutton" aria-hidden="true"><img src="images/configuration21.png"/></a>
+					<div class="col-xs-12 text-center" style="margin-top:0px;font-family:track">Settings</div>
+					<div class="col-xs-12 text-left" style="margin-top:50px;">
+						<span style="margin-right:10px;">Number of rows</span> 
+						<img onclick="dec('nb_rows',1);" class="add_minus" src="images/minus.png" style="margin-right:10px"/>
+						<span id="nb_rows" class="nb">3</span> 
+						<img onclick="inc('nb_rows',15);" class="add_minus" src="images/add.png" style="margin-left:10px">
+					</div>
+					<div class="col-xs-12 text-left" style="margin-top:50px;margin-right:10px;">
+						<span style="margin-right:10px;">Number of columns</span> 
+						<img onclick="dec('nb_cols',1);"  class="add_minus" src="images/minus.png" style="margin-right:10px"/>
+						<span id="nb_cols" class="nb">3</span> 
+						<img onclick="inc('nb_cols',15);" class="add_minus" src="images/add.png" style="margin-left:10px">
+					</div>
+					<div class="col-xs-12 text-left" style="margin-top:50px;margin-right:10px;">
+						<span style="margin-right:10px;">Token to align</span> 
+						<img onclick="dec('nb_win',1);" class="add_minus" src="images/minus.png" style="margin-right:10px"/>
+						<span id="nb_win" class="nb">3</span> 
+						<img onclick="inc('nb_win',15);" class="add_minus" src="images/add.png" style="margin-left:10px">
+					</div>
+					<div class="col-xs-12 text-left" style="margin-top:50px;margin-right:10px;">
+						<span style="margin-right:10px">Play with </span>
+						<input type="radio" id="human" name="player" onclick="hideComp();"/>
+  						<label for="human"><span></span>Human</label>
+						<input type="radio" id="computer" name="player" checked="true" onclick="showComp();" />
+ 						<label for="computer"><span></span>Computer</label>
+					</div>
+					<div id="color" class="col-xs-12 text-left" style="margin-top:50px;margin-right:10px;">
+						<span style="margin-right:10px">Your color </span>
+						<input type="radio" id="red" name="color" checked="true"/>
+  						<label for="red"><span></span>Red</label>
+						<input type="radio" id="blue" name="color"/>
+ 						<label for="blue"><span></span>Blue</label>
+					</div>
+					<div id="difficulty" class="col-xs-12 text-left" style="margin-top:50px;margin-right:10px;">
+						<span style="margin-right:10px">Difficulty</span>
+						<input type="radio" id="random" name="level" />
+  						<label for="random"><span></span>Easy</label>
+						<input type="radio" id="medium" name="level" checked="true"/>
+ 						<label for="medium"><span></span>Medium</label>
+ 						<input type="radio" id="hard" name="level"/>
+ 						<label for="hard"><span></span>Hard</label>
+					</div>
+					<div class="col-xs-12 text-center" style="margin-top:80px;">
+						<div class="col-xs-6"><button onclick="random_configuration();" style="width:100%;color:#ed5564;font-family:track;padding:5px;">Random</button></div>
+						<div class="col-xs-6"><button onclick="get_configuration(true);" style="width:100%;color:#ed5564;font-family:track;padding:5px;">Restart</button></div>
+					</div>
+
+
+				</div>
 			</div>
-			<div style="text-align:center;margin-top:20px;">
-				<label style="text-align:center;"><button onclick="random_configuration();">Random</button></label>
-				<label style="text-align:center;"><button onclick="get_configuration();">Begin</button></label>
 			</div>
+			<footer id="foot">Copyright © 2016 Amandine Fouillet & Laura Guillemot</footer>
 		</div>
-		<a href="#volet" class="ouvrir"><img src="images/tool.png" style="margin-right:12px;"><span style="vertical-align:17%;">Configuration</span></a>
-		<a href="#volet_clos" class="fermer"><img src="images/tool.png" style="margin-right:12px;"><span style="vertical-align:17%;">Configuration</span></a>
-	</div>
-	<div class="content" style="width:100%">
-		<div style="width:100%;padding:10px;text-align:center;" id="game">
-			<div style="margin-bottom:14px;">
-				<img id="img_turn" src="images/cross.png" width="40px;">
-				<span id="player_round">Default</span>
-				<button id="start_again" class="hide" onclick="get_configuration();">Start again</button>
-			</div>
-			<table id="table_game" align="center"></table>
-		<div>
-	</div>
-
-
+		<script src="js/graphique.js"></script>
 		<script src='js/gomoku.js'></script>
+		<script src="js/jquery-2.2.0.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
 	</body>
 </html>

@@ -14,7 +14,7 @@ var player, red_human, red_random, red_ia, black_random, black_human, black_ia;
 var end_game, grille, searchDepth;
 
 
-get_configuration();
+get_configuration(true);
 
  
 /**
@@ -23,12 +23,13 @@ get_configuration();
  */
 function reset_vars(){
 	red_human = red_random = red_ia = black_random = black_human = black_ia = 
-	document.getElementById("red_human").checked =
-	document.getElementById("red_random").checked =
-	document.getElementById("red_ia").checked =
-	document.getElementById("black_random").checked =
-	document.getElementById("black_human").checked =
-	document.getElementById("black_ia").checked = false;
+	document.getElementById("human").checked =
+	document.getElementById("computer").checked =
+	document.getElementById("red").checked =
+	document.getElementById("blue").checked =
+	document.getElementById("random").checked =
+	document.getElementById("medium").checked = 
+	document.getElementById("hard").checked = false;	
 }
 
 /**
@@ -43,40 +44,30 @@ function random_configuration(){
 		nb_win = Math.floor((Math.random() * 15) + 2);
 	}while(nb_win > nb_rows && nb_win > nb_cols);
 
-	document.getElementById("nb_rows").value = nb_rows;
-	document.getElementById("nb_cols").value = nb_cols;
-	document.getElementById("nb_win").value = nb_win;
-	searchDepth = Math.floor((Math.random() * 10) + 1);
-	document.getElementById("searchDepth").value = searchDepth;
-
-	var redp = Math.floor((Math.random() * 3));
-	switch(redp){
+	setValue('nb_rows', nb_rows);
+	setValue('nb_cols', nb_cols);
+	setValue('nb_win', nb_win);
+	document.getElementById("computer").checked = true;
+	//Color 
+	var color = Math.floor((Math.random() * 2));
+	switch(color){
 		case 0:
-			red_human = true;
-			document.getElementById("red_human").checked = true;
+			document.getElementById("red").checked = true;
 			break;
-		case 1:
-			red_random = true;
-			document.getElementById("red_random").checked = true;
-			break;
-		case 2:
-			red_ia = true;
-			document.getElementById("red_ia").checked = true;
-			break;
+		default:
+			document.getElementById("blue").checked = true;
 	}
-	var blackp = Math.floor((Math.random() * 3));
-	switch(blackp){
+
+	var level = Math.floor((Math.random() * 3));
+	switch(level){
 		case 0:
-			black_human = true;
-			document.getElementById("black_human").checked = true;
+			document.getElementById("random").checked = true;
 			break;
 		case 1:
-			black_random = true;
-			document.getElementById("black_random").checked = true;
+			document.getElementById("medium").checked = true;
 			break;
 		case 2:
-			black_ia = true;
-			document.getElementById("black_ia").checked = true;
+			document.getElementById("hard").checked = true;
 			break;
 	}
 }
@@ -87,17 +78,18 @@ function random_configuration(){
  */
 function set_player(){
 	if(player == 1){
-		document.getElementById("img_turn").src = "images/cross.png";
-		if(red_human)
-			document.getElementById("player_round").innerHTML = "Its red turn";
+		document.getElementById("img_turn").src = "images/delete.png";
 		if(red_random || red_ia)
-			document.getElementById("player_round").innerHTML = "Its the computer turn, wait..";
+			document.getElementById("player_round").innerHTML = "It is the computer turn, wait..";
+		else
+			document.getElementById("player_round").innerHTML = "It is red turn";
 	}else{
-		document.getElementById("img_turn").src = "images/circle.png";
-		if(black_human)
-			document.getElementById("player_round").innerHTML = "Its black turn";
+		document.getElementById("img_turn").src = "images/geometry.png";
 		if(black_random || black_ia)
-			document.getElementById("player_round").innerHTML = "Its the computer turn, wait..";
+			document.getElementById("player_round").innerHTML = "It is the computer turn, wait..";
+		else
+			document.getElementById("player_round").innerHTML = "It is blue turn";
+
 	}
 }
 
@@ -105,23 +97,44 @@ function set_player(){
  * @function get_configuration
  * Set a random configuration
  */
-function get_configuration(){
-	nb_rows = document.getElementById("nb_rows").value;
-	nb_cols = document.getElementById("nb_cols").value;
-	nb_win = document.getElementById("nb_win").value;
+function get_configuration(bool){
+	if(bool){
+		setValue("blue_points",0);
+		setValue("red_points",0);
+	}
+
+	nb_rows = document.getElementById("nb_rows").innerHTML;
+	nb_cols = document.getElementById("nb_cols").innerHTML;
+	nb_win = document.getElementById("nb_win").innerHTML;
 
 	//Human 
-	red_human = document.getElementById("red_human").checked;
-	black_human = document.getElementById("black_human").checked;
+	red_human = document.getElementById("blue").checked;
+	black_human = document.getElementById("red").checked;
 
 	//Random
-	red_random = document.getElementById("red_random").checked;
-	black_random = document.getElementById("black_random").checked;
+	red_random = document.getElementById("red").checked && 
+				document.getElementById("computer").checked &&
+				document.getElementById("random").checked;
+
+	black_random = document.getElementById("blue").checked && 
+				document.getElementById("computer").checked &&
+				document.getElementById("random").checked;
 
 	//IA
-	red_ia = document.getElementById("red_ia").checked;
-	black_ia = document.getElementById("black_ia").checked;
-	searchDepth = document.getElementById("searchDepth").value;
+	red_ia = document.getElementById("red").checked && 
+				document.getElementById("computer").checked &&
+				(document.getElementById("medium").checked || document.getElementById("hard").checked);
+
+	black_ia = document.getElementById("blue").checked && 
+				document.getElementById("computer").checked &&
+				(document.getElementById("medium").checked || document.getElementById("hard").checked);
+
+	console.log(red_random);
+	console.log(black_random);
+	console.log(red_ia);
+	console.log(black_ia);
+	searchDepth = document.getElementById("hard").checked? 8 : 4;
+
 
 	//Aleatoire 
 	player = Math.random() >= 0.5 ? 1 : 2;
@@ -146,6 +159,7 @@ function get_configuration(){
 	}
 } 
 
+
 /**
  * @function create_table()
  * Create the html table
@@ -169,8 +183,8 @@ function create_table(){
 			cell = row.insertCell(j);
 			cell.id = "game" + i + "_" + j;
 			cell.onclick = setClick(i, j);
-			cell.width = size;
-			cell.height = size;
+			//cell.width = size;
+			//cell.height = size;
 			grille[i][j] = 0;
 		}
 	}
@@ -207,12 +221,17 @@ function play(i, j){
 		end_game = check_win(i, j, get_col(i,j));
 		if(end_game == 0){
 			if(player == 1){
-				document.getElementById("img_turn").src = "images/cross.png";
+				document.getElementById("img_turn").src = "images/delete.png";
 				document.getElementById("player_round").innerHTML = "Red win !";
+				inc("red_points", Infinity);
+				displayContinue(1);
 			}else{
-				document.getElementById("img_turn").src = "images/circle.png";
-				document.getElementById("player_round").innerHTML = "Black win !";
+				document.getElementById("img_turn").src = "images/geometry.png";
+				document.getElementById("player_round").innerHTML = "Blue win !";
+				inc("blue_points",Infinity);
+				displayContinue(2);
 			}
+		
 		}else if(end_game == 1){
 			if(player == 1)
 			 	player = 2;
@@ -220,22 +239,29 @@ function play(i, j){
 			 	player = 1;
 			set_player();
 			if((player == 1) && red_random){
-				random_player();
+				setTimeout(function(){ random_player() }, 500);
 			}else if((player == 2) && black_random){
-				random_player();
+				setTimeout(function(){ random_player() }, 500);
 			}
 
 			if((player == 1)  && red_ia){
-				iaPlay(grille, searchDepth);
+				setTimeout(function(){ iaPlay(grille, searchDepth); }, 500);
 			}else if((player == 2) && black_ia){
-				iaPlay(grille, searchDepth);
-			}
+				setTimeout(function(){ iaPlay(grille, searchDepth); }, 500);
+			}			
 
 		}else{
-			document.getElementById("img_turn").src = "images/circleandcross.png";
+			document.getElementById("img_turn").src = "images/egality.png";
 			document.getElementById("player_round").innerHTML = "Egality";
+			displayContinue(3);
 		}
 	}
+}
+
+
+function continueGame(){
+	hideContinue();
+	get_configuration(false);
 }
 
 /**
@@ -321,9 +347,23 @@ function check_win(x, y, col){
 		checkSONE++;
 	}
 
+	if(checkH >= nb_win){
+		display_lines(x, y, col, 0)
+		return 0;
+	}else if(checkV >= nb_win){
+		display_lines(x, y, col, 1)
+		return 0;
+	}else if(checkNOSE >= nb_win){
+		display_lines(x, y, col, 2)
+		return 0;
+	}else if(checkSONE >= nb_win){
+		display_lines(x, y, col, 3)
+		return 0;
+	}
+	/*
 	if(Math.max(checkH, checkV, checkNOSE, checkSONE) >= nb_win)
 		return 0;
-
+*/
 	for(i = 0; i < nb_rows; i++)
 		for(j = 0; j < nb_cols; j++)
 			if(get_col(i,j) != "red" && get_col(i,j) != "black")
@@ -332,6 +372,78 @@ function check_win(x, y, col){
 	return 2;
 }
 
+function display_lines(x, y, col, id){
+	var classe, xt, yt;
+	if(col == "red")
+		classe = 'redWin';
+	else
+		classe = 'blackWin';
+	
+	switch(id){
+		case 0:
+			for(var i = x; i < nb_rows; i++){
+				if(get_col(i,y) == col)
+					document.getElementById("game" + i + "_" + y).className = classe;
+				else
+					break;
+			}
+			for(var i = 0; i < x; i++){
+				if(get_col(i,y) == col)
+					document.getElementById("game" + i + "_" + y).className = classe;
+				else
+					break;
+			}
+			break;
+
+		case 1:
+			for(var j = y; j < nb_cols; j++){
+				if(get_col(x,j) == col)
+					document.getElementById("game" + x + "_" + j).className = classe;
+				else 
+					break;
+			}
+			for(var j = 0; j < y; j++){
+				if(get_col(x,j) == col)
+					document.getElementById("game" + x + "_" + j).className = classe;
+				else
+					break;
+			}
+			break;
+		case 2:
+			xt=x;
+			yt=y;
+			while(xt>=0 && yt>=0 && get_col(xt,yt)===col){
+				document.getElementById("game" + xt + "_" + yt).className = classe;
+				xt--;
+				yt--;
+			}
+
+			xt=x+1;
+			yt=y+1;
+			while(xt<nb_rows && yt<nb_cols && get_col(xt,yt)===col){
+				document.getElementById("game" + xt + "_" + yt).className = classe;
+				xt++;
+				yt++;
+			}
+		case 3:
+			xt=x;
+			yt=y;
+			while(xt>=0 && yt<nb_cols && get_col(xt,yt)===col){		
+				document.getElementById("game" + xt + "_" + yt).className = classe;
+				xt--;
+				yt++;
+			}
+
+			xt=x+1;
+			yt=y-1;
+			while(xt<nb_rows && yt>=0 && get_col(xt,yt)===col){
+				document.getElementById("game" + xt + "_" + yt).className = classe;
+				xt++;
+				yt--;
+			}
+			break;
+	}
+}
 /**
  * @function random_player()
  * Play a token randomly
