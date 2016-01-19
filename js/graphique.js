@@ -1,3 +1,14 @@
+/**
+ * @file Gomoku game
+ * Interaction between the js and the html
+ * @author Amandine Fouillet <amandinefouillet@gmail.com>
+ * @author Laura Guillemot <laura.guillemot@insa-rennes.fr>
+ */
+
+/**
+ * @function openThat
+ * Open the settings "pop up" 
+ */
 function openThat() {
 	document.getElementById('princ').className = 'col-xs-8';
 	document.getElementById('config').className = 'col-xs-4 text-right';
@@ -8,6 +19,10 @@ function openThat() {
 	document.getElementById('foot').style.left = '0';
 }
 
+/**
+ * @function closeThat
+ * Close the settings "pop up" 
+ */
 function closeThat() {
 	document.getElementById('princ').className = 'col-xs-12';
 	document.getElementById('config').style.display = 'none';
@@ -17,48 +32,76 @@ function closeThat() {
 	document.getElementById('foot').style.left = 'inherit';
 }
 
+/**
+ * @function inc
+ * Increment one variable in the html element
+ * @params id -  Html container
+ * @params max - Limit 
+ */
 function inc(id, max){
 	var span = document.getElementById(id);
 	var old = span.innerHTML;
 	if(old < max){
-		while(span.firstChild){
+		while(span.firstChild)
 		    span.removeChild( span.firstChild );
-		}
 		old++;
 		document.getElementById(id).appendChild(document.createTextNode(old));
 	}
 }
 
+/**
+ * @function dec
+ * Decrement one variable in the html element
+ * @params id -  id of the html container
+ * @params min - Limit 
+ */
 function dec(id, min){
 	var span = document.getElementById(id);
 	var old = span.innerHTML;
 	if(old>min){
-		while(span.firstChild){
+		while(span.firstChild)
 		    span.removeChild( span.firstChild );
-		}
 		old--;
 		document.getElementById(id).appendChild(document.createTextNode(old));
 	}
 }
 
+/**
+ * @function setValue
+ * Insert a value in a html element
+ * @params id - id of the html container
+ * @params value - The value to insert
+ */
 function setValue(id, value){
 	var span = document.getElementById(id);
-	while(span.firstChild){
+	while(span.firstChild)
 	    span.removeChild( span.firstChild );
-	}
 	document.getElementById(id).appendChild(document.createTextNode(value));
 }
 
+/**
+ * @function showComp
+ * Show ia settings
+ */
 function showComp(){
 	document.getElementById('color').style.display = 'inline-block';
 	document.getElementById('difficulty').style.display = 'inline-block';
 }
 
+/**
+ * @function hideComp
+ * Hide ia settings
+ */
 function hideComp(){
 	document.getElementById('color').style.display = 'none';
 	document.getElementById('difficulty').style.display = 'none';
 }
 
+/**
+ * @function displayContinue
+ * Display the continue button
+ * @params bool - 1 red, 2 blue, 3 green
+ */
 function displayContinue(bool){
 	document.getElementById('continue').style.display = 'inline-block';
 	if(bool == 1)
@@ -67,12 +110,12 @@ function displayContinue(bool){
 		document.getElementById('continue').style.backgroundColor = '#5c9ded';
 	else
 		document.getElementById('continue').style.backgroundColor = '#99d468';
-
 }
 
+/**
+ * @function hideContinue
+ * Hide the continue button 
+ */
 function hideContinue(){
 	document.getElementById('continue').style.display = 'none';
 }
-
-
-
