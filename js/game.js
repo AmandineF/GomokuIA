@@ -1,6 +1,6 @@
 /**
- * @file Gomoku game
- * Function for setting up the game introduction
+ * @file game
+ * Setting up of the game introduction
  * @author Amandine Fouillet <amandinefouillet@gmail.com>
  * @author Laura Guillemot <laura.guillemot@insa-rennes.fr>
  */
@@ -29,28 +29,28 @@ function get_configuration(bool){
 	nb_win = document.getElementById("nb_win").innerHTML;
 
 	//Human 
-	red_human = document.getElementById("blue").checked;
-	black_human = document.getElementById("red").checked;
+	red_human = document.getElementById("red").checked;
+	black_human = document.getElementById("blue").checked;
 
 	//Random
-	red_random = document.getElementById("red").checked && 
+	red_random = document.getElementById("blue").checked && 
 				document.getElementById("computer").checked &&
 				document.getElementById("random").checked;
 
-	black_random = document.getElementById("blue").checked && 
+	black_random = document.getElementById("red").checked && 
 				document.getElementById("computer").checked &&
 				document.getElementById("random").checked;
 
 	//IA
-	red_ia = document.getElementById("red").checked && 
+	red_ia = document.getElementById("blue").checked && 
 				document.getElementById("computer").checked &&
 				(document.getElementById("medium").checked || document.getElementById("hard").checked);
 
-	black_ia = document.getElementById("blue").checked && 
+	black_ia = document.getElementById("red").checked && 
 				document.getElementById("computer").checked &&
 				(document.getElementById("medium").checked || document.getElementById("hard").checked);
 
-	searchDepth = document.getElementById("hard").checked? 8 : 4;
+	searchDepth = document.getElementById("hard").checked? 6 : 4;
 
 
 	//Aleatoire 
@@ -158,16 +158,18 @@ function set_player(){
  */
 function create_table(){
 	var size;
-	if(nb_rows <= 5)
-		size = "60px";
-	if(nb_rows > 5 && nb_rows <= 10)
-		size = "40px";
-	if(nb_rows > 10)
-		size = "30px";
 	document.getElementById("table_game").remove();
 	var table_game = document.createElement("table");
 	table_game.id = "table_game";
 	table_game.align = "center";
+	
+	if(nb_rows <= 5)
+		table_game.className = "bigTable";
+	if(nb_rows > 5 && nb_rows <= 10)
+		table_game.className = "mediumTable";
+	if(nb_rows > 10)
+		table_game.className = "smallTable";
+
 	var row, cell;
 	for(i = 0; i < nb_rows; i++) {
 		row = table_game.insertRow(i);
@@ -175,8 +177,6 @@ function create_table(){
 			cell = row.insertCell(j);
 			cell.id = "game" + i + "_" + j;
 			cell.onclick = setClick(i, j);
-			//cell.width = size;
-			//cell.height = size;
 			grille[i][j] = 0;
 		}
 	}

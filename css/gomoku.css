@@ -22,6 +22,7 @@ body{
 .red {
   background: #e0e4e7  url("../images/delete.png") no-repeat center center;
 }
+
 .redWin {
   background: #ed5564;
 }
@@ -29,9 +30,11 @@ body{
 .black {
   background: #e0e4e7  url("../images/geometry.png") no-repeat center center;
 }
+
 .blackWin {
-  background: #4cc5e4;
+  background: #5c9ded;
 }
+
 .turn{
   margin-left:10px;
   margin-top:10px;
@@ -50,17 +53,29 @@ table {
   width:100% !important;
 }
 
-
 .alignTable{
   position: absolute;
   left:40%;
 }
 
+.bigTable td{
+  width:100px !important;
+  height:100px !important;
+}
+
+.mediumTable td{
+  width:70px !important;
+  height:70px !important;
+}
+
+.smallTable td{
+  width:40px !important;
+  height:40px !important;
+}
+
 table td{
   cursor: pointer;
   display: table-cell !important;
-  width:100px !important;
-  height:100px !important;
   background-color: #e0e4e7 ;
   border: 1px solid #a5adb8;
 }
@@ -117,7 +132,6 @@ table td{
   background-color: white !important;
 }
 
-
 #btnClose {
   display: none;
 }
@@ -137,8 +151,8 @@ table td{
 
 .add_minus{
   cursor: pointer;
-
 }
+
 .nb{
   font-family: track;
 }
@@ -159,7 +173,6 @@ footer {
   margin-right:10px;
   margin-left:10px;
 }  
-
 
 div {
   margin:0 0 0.75em 0;
@@ -193,6 +206,7 @@ input[type="radio"]:checked + label span{
      background-color:#4cc5e4;
 
 }
+
 input[type="radio"]:checked + label span .green{
      background-color:black;
 
@@ -217,4 +231,88 @@ label{
   font-family:source;
   display:none;
   background-color: #5c9ded;
+}
+
+#menu {
+  top:50%;
+}
+
+.menu a, .menu a:hover{
+  width: 100%;
+  height: 100%;
+  font-family: track;
+  color:white;
+  font-size: 17px;
+  text-decoration: none;
+}
+
+.redMenu {
+  background-color:#ed5564;
+  height:200px;
+  margin-right: 10px;
+}
+
+.greenMenu {
+  background-color:#99d468;
+   height:200px;
+}
+
+.blueMenu {
+  background-color:#5c9ded;
+   height:200px;
+    margin-right: 10px;
+}
+
+.blackbutton{
+  background-color: #a5adb8;
+  padding: 7px;
+    padding-right: 10px;
+}
+
+.smallMenu {
+  margin-bottom: 10px;
+     border-spacing: 2px 2px !important;
+}
+
+.smallMenu td{
+  width:40px !important;
+  height:40px !important;
+  background-color: white;
+}
+
+.verySmallMenu {
+  margin-bottom: 10px;
+     border-spacing: 1px 1px !important;
+}
+
+.verySmallMenu td{
+  width:18px !important;
+  height:18px !important;
+  background-color: white;
+}
+
+.mediumSmallMenu {
+  margin-bottom: 14px;
+  border-spacing: 1px 1px !important;
+}
+
+.mediumSmallMenu td{
+  width:28px !important;
+  height:28px !important;
+  background-color: white;
+}
+
+.blue {
+  background: #e0e4e7  url("../images/round.png") no-repeat center center;
+   background-size: 12px 12px;
+}
+
+.green {
+  background: #e0e4e7  url("../images/plain.png") no-repeat center center;
+   background-size: 18px 18px;
+}
+
+.red2 {
+  background: #e0e4e7  url("../images/delete.png") no-repeat center center;
+  background-size: 22px 22px;
 }

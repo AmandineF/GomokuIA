@@ -119,3 +119,56 @@ function displayContinue(bool){
 function hideContinue(){
 	document.getElementById('continue').style.display = 'none';
 }
+
+function saveData(id){
+   var game = id;
+   game = JSON.stringify(game);
+   localStorage.setItem('game', game);
+}
+
+function initialize(){
+   var game = localStorage.getItem('game');
+   if(game) game = JSON.parse(game);
+   if(game) {
+     changeLogo(game);
+   }
+}
+
+function deleteData(){
+	 localStorage.removeItem('game');
+}
+
+function changeLogo(id){
+	switch(id){
+		case 3: //GOMOKU
+			document.getElementById('logo').src = "images/gomoku.png";
+			document.getElementById('div_nb').style.display = 'none';
+			document.getElementById('random_btn').style.display = 'none';
+			document.getElementById('restart_btn').className = 'col-xs-12';
+	 		setValue('nb_rows', 7);
+			setValue('nb_cols', 7);
+			setValue('nb_win', 5);
+			get_configuration(true);
+			break;
+		case 1: //TIC TAC TOE
+			document.getElementById('logo').src = "images/tictactoe.png";
+			document.getElementById('div_nb').style.display = 'none';
+			document.getElementById('random_btn').style.display = 'none';
+			document.getElementById('restart_btn').className = 'col-xs-12';
+			setValue('nb_rows', 3);
+			setValue('nb_cols', 3);
+			setValue('nb_win', 3);
+			get_configuration(true);
+			break;
+		default: //YOUR OWN GRID
+			document.getElementById('logo').src = "images/yourowngrid.png";
+			document.getElementById('div_nb').style.display = 'inline-block';
+			document.getElementById('random_btn').style.display = 'inline-block';
+			document.getElementById('random_btn').className = 'col-xs-6';
+			document.getElementById('restart_btn').className = 'col-xs-6';
+			random_configuration();
+			get_configuration(true);
+			break;
+	}
+
+}
