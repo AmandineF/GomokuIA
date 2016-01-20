@@ -85,7 +85,7 @@ function iaPlayer(grid, depth) {
  */
 function iaMax(grid, depth, alpha, beta) {
 	if(depth == 0 | winner(grid) != 0){
-		return iaEstimation(grid);
+		return iaRanting(grid);
 		if(nb_rows > 4)
 			return iaEstimation(grid);
 		else
@@ -128,7 +128,7 @@ function iaMax(grid, depth, alpha, beta) {
 function iaMin(grid, depth, alpha, beta) {
 	var token = 0;
 	if(depth == 0 | winner(grid) !=0){
-		return iaEstimation(grid);
+		return iaRanting(grid);
 		if(nb_rows > 4)
 			return iaEstimation(grid);
 		else
@@ -174,7 +174,8 @@ function iaMin(grid, depth, alpha, beta) {
  */
 function iaRanting(grid) {
 	var nbPions = 0;
-
+	var res = 0;
+/*
 	for(var i = 0; i < grid.length; i++)
 		for(var j = 0; j < grid[0].length; j++)
 			if(grid[i][j] != 0)
@@ -189,11 +190,21 @@ function iaRanting(grid) {
 		}
 	}
 	alignToken(grid, nb_win-1);
-	var res;
+	
 	if(player == 1)
 		res = serie1-serie2;
 	else 
 		res = serie2-serie1;
+	return res;*/
+
+	for(var i = 0; i < nb_win; i++) {
+		alignToken(grid, i);
+		if(player == 1)
+			res += (serie1-serie2);
+		else 
+			res += (serie2-serie2);
+	}
+	//console.log(res);
 	return res;
 }
 
@@ -297,6 +308,7 @@ function alignToken(grid, nb_align){
 			}
 		}
 	}
+	//console.log(serie1);
 }
 
 /**
