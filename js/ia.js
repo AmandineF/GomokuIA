@@ -64,8 +64,10 @@ function iaPlayer(grid, depth) {
  */
 function iaMax(grid, depth, alpha, beta) {
 	if(depth == 0 | winner(grid) != 0){
-		return iaEstimation(grid);
-		//return iaRanting(grid);
+		if(nb_rows > 4)
+			return iaEstimation(grid);
+		else
+			return iaRanting(grid);
 	}
 
 	var max = -Infinity;
@@ -104,8 +106,10 @@ function iaMax(grid, depth, alpha, beta) {
 function iaMin(grid, depth, alpha, beta) {
 	var token = 0;
 	if(depth == 0 | winner(grid) !=0){
-		return iaEstimation(grid);
-		//return iaRanting(grid);
+		if(nb_rows > 4)
+			return iaEstimation(grid);
+		else
+			return iaRanting(grid);
 	}
 
 	if(player == 1)
