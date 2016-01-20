@@ -5,6 +5,26 @@
  * @author Laura Guillemot <laura.guillemot@insa-rennes.fr>
  */
 
+var searchDepth, nb_rows, nb_cols, nb_win;
+
+onmessage = function(e) {
+	var data = e.data;
+	searchDepth = data.depth;
+	nb_rows = data.grid.length;
+	nb_cols = data.grid[0].length;
+	nb_win = data.nb_win;
+	player = data.player;
+
+	switch(data.cmd){
+		case "random":
+			random_player();
+		break;
+		case "ia":
+			iaPlay(data.grid, searchDepth);
+		break;
+	}
+};
+
 /**
  * @function get_configuration
  * @param originalGrid - The original grid of the game
@@ -52,7 +72,8 @@ function iaPlayer(grid, depth) {
 			}
 		}
 	}
-	play(xplay, yplay);
+	postMessage({cmd:"coup",x:xplay,y:yplay});
+	//play(xplay, yplay);
 }
 
 /**
@@ -64,6 +85,7 @@ function iaPlayer(grid, depth) {
  */
 function iaMax(grid, depth, alpha, beta) {
 	if(depth == 0 | winner(grid) != 0){
+		return iaEstimation(grid);
 		if(nb_rows > 4)
 			return iaEstimation(grid);
 		else
@@ -106,6 +128,7 @@ function iaMax(grid, depth, alpha, beta) {
 function iaMin(grid, depth, alpha, beta) {
 	var token = 0;
 	if(depth == 0 | winner(grid) !=0){
+		return iaEstimation(grid);
 		if(nb_rows > 4)
 			return iaEstimation(grid);
 		else
@@ -285,7 +308,8 @@ function random_player() {
 		var i =  Math.floor((Math.random() * nb_rows));
 		var j = Math.floor((Math.random() * nb_cols));
 	}while(get_col(i, j) == "red" || get_col(i, j) == "black");
-	play(i,j);
+	//play(i,j);
+	postMessage({cmd:"coup",x:i, y:j});
 }
 
 
@@ -470,6 +494,15 @@ function iaAnalyse(grille,x,y){
 	return estimation;
 }
 
+/**
+ * @function get_col()
+ * Get the color of token in the cell
+ * @param i - abscissa of the token 
+ * @param j -  ordinate of the token 
+ */
+function get_col(i, j) {
+	return document.getElementById("game" + i + "_" + j).className;
+}
 
 /**
  * @function pasteGrid

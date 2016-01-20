@@ -9,11 +9,48 @@
 var nb_rows, nb_rows, nb_win;
 
 //Players variables
-var player, red_human, red_random, red_ia, black_random, black_human, black_ia;
+var player, red_human, red_random, red_ia, black_random, black_human, black_ia, humanToPlay;
 
 //Game variables
 var end_game, grille, searchDepth, serie1, serie2;
+
+var worker; 
  
+init_game();
+
+function init_game(){
+	console.log("init");
+	if(worker && worker.playing){ 
+		worker.terminate();
+	}
+	createWorker();
+}
+
+function createWorker(){
+	if(window.Worker){
+	    worker = new Worker("js/ia.js");
+	    worker.playing = false;
+	}else{
+	    worker = document.createElement("script");
+	    worker.src = "js/ia.js";
+	    document.body.appendChild(worker);
+	    worker = null;
+	}
+
+	worker.onmessage = function(e){
+		var data = e.data;
+		switch(data.cmd){
+			case "coup":
+				play(data.x,data.y);
+			break;
+		}
+	};
+
+	worker.onerror = function(e){
+		alert(e.message);
+	};
+}
+
 /**
  * @function get_configuration
  * @param bool - true if we need to reset the scores, false otherwise
@@ -63,16 +100,38 @@ function get_configuration(bool){
 		grille[i] = new Array(nb_cols);
 
 	create_table();
+	if((player == 1 && red_human) || (player == 2 && black_human))
+		humanToPlay = true;
 
 	if(red_random && (player == 1)){
-		random_player();
+		if(worker){
+			worker.playing = true;
+			worker.postMessage({cmd:"random", grid:grille,player:player,depth:searchDepth,nb_win:nb_win});
+		}else{
+			random_player();
+		}
 	}else if(black_random && !(player == 1)){
-		random_player();
+		if(worker){
+			worker.playing = true;
+			worker.postMessage({cmd:"random", grid:grille,player:player,depth:searchDepth,nb_win:nb_win});
+		}else{
+			random_player();
+		}
 	}
 	if(red_ia && (player == 1)){
-		iaPlay(grille, searchDepth);
+		if(worker){
+			worker.playing = true;
+			worker.postMessage({cmd:"ia", grid:grille,player:player,depth:searchDepth,nb_win:nb_win});
+		}else{
+			iaPlay(grille, searchDepth);
+		}
 	}else if(black_ia && !(player == 1)){
-		iaPlay(grille, searchDepth);
+		if(worker){
+			worker.playing = true;
+			worker.postMessage({cmd:"ia", grid:grille,player:player,depth:searchDepth,nb_win:nb_win});
+		}else{
+			iaPlay(grille, searchDepth);
+		}
 	}
 } 
 
@@ -191,7 +250,7 @@ function create_table(){
  */
 function setClick(x,y){
     return function(){
-        play(x,y);
+        	play(x,y, true);
     };
 }
 
@@ -201,7 +260,8 @@ function setClick(x,y){
  * @param i - abscissa of the token 
  * @param j -  ordinate of the token 
  */
-function play(i, j){	
+function play(i, j, bool){	
+	if(!humanToPlay && bool) return false;
 	if(end_game == 1 && get_col(i,j) != "red" && get_col(i,j) != "black"){
 		if(player == 1){
 			grille[i][j] = 1;
@@ -229,18 +289,28 @@ function play(i, j){
 			 	player = 2;
 			 else
 			 	player = 1;
-			set_player();
-			if((player == 1) && red_random){
-				setTimeout(function(){ random_player() }, 500);
-			}else if((player == 2) && black_random){
-				setTimeout(function(){ random_player() }, 500);
-			}
 
-			if((player == 1)  && red_ia){
-				setTimeout(function(){ iaPlay(grille, searchDepth); }, 500);
-			}else if((player == 2) && black_ia){
-				setTimeout(function(){ iaPlay(grille, searchDepth); }, 500);
-			}			
+			set_player();
+
+			if((red_random && player == 1) || (black_random && player == 2)){
+				humanToPlay = false;
+				if(worker){
+					worker.playing = true;
+					worker.postMessage({cmd:"random", grid:grille,player:player,depth:searchDepth,nb_win:nb_win});
+				}else{
+					setTimeout(function(){ random_player() }, 500);
+				}
+			}else if((red_ia && player == 1) || (black_ia && player == 2)){
+				humanToPlay = false;
+				if(worker){
+					worker.playing = true;
+					worker.postMessage({cmd:"ia", grid:grille,player:player,depth:searchDepth,nb_win:nb_win});
+				}else{
+					setTimeout(function(){ iaPlay(grille, searchDepth); }, 500);
+				}
+			}else{
+				humanToPlay = true;
+			}	
 
 		}else{
 			document.getElementById("img_turn").src = "images/egality.png";

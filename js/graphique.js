@@ -5,6 +5,14 @@
  * @author Laura Guillemot <laura.guillemot@insa-rennes.fr>
  */
 
+function init_graph(){
+   var game = localStorage.getItem('game');
+   if(game) game = JSON.parse(game);
+   if(game) {
+     changeLogo(game);
+   }
+}
+
 /**
  * @function openThat
  * Open the settings "pop up" 
@@ -126,13 +134,6 @@ function saveData(id){
    localStorage.setItem('game', game);
 }
 
-function initialize(){
-   var game = localStorage.getItem('game');
-   if(game) game = JSON.parse(game);
-   if(game) {
-     changeLogo(game);
-   }
-}
 
 function deleteData(){
 	 localStorage.removeItem('game');
