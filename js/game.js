@@ -49,7 +49,10 @@ function createWorker(){
 				break;
 			case "coup":
 				play(data.x,data.y);
-			break;
+				break;
+			default:
+				console.log("default");
+				break;
 		}
 	};
 }
@@ -96,7 +99,7 @@ function get_configuration(bool){
 					document.getElementById("computer").checked &&
 					(document.getElementById("medium").checked || document.getElementById("hard").checked);
 
-		searchDepth = document.getElementById("hard").checked? 8 : 4;
+		searchDepth = document.getElementById("hard").checked? 6 : 4;
 	}
 
 	//Aleatoire 
@@ -124,7 +127,7 @@ function get_configuration(bool){
 		humanToPlay = false;
 		if(worker){
 			worker.playing = true;
-			worker.postMessage({cmd:"random", grid:grille,player:player,depth:searchDepth,nb_win:nb_win});
+			worker.postMessage({cmd:"random", grid:grille,player:player,depth:searchDepth,nb_win:nb_win, connect4:connect4, lastx:0, lasty:0});
 		}else{
 			random_player();
 		}
@@ -134,7 +137,7 @@ function get_configuration(bool){
 		humanToPlay = false;
 		if(worker){
 			worker.playing = true;
-			worker.postMessage({cmd:"ia", grid:grille,player:player,depth:searchDepth,nb_win:nb_win, connect4:connect4});
+			worker.postMessage({cmd:"ia", grid:grille,player:player,depth:searchDepth,nb_win:nb_win, connect4:connect4, lastx:0, lasty:0});
 		}else{
 			iaPlay(grille, searchDepth);
 		}
@@ -211,7 +214,7 @@ function set_player(){
 			document.getElementById("player_round").innerHTML = "It is the computer turn, wait..";
 			progressIA = document.createElement("progress");
 			progressIA.max = 100;
-			//document.getElementById("player_round").appendChild(progressIA);
+			document.getElementById("player_round").appendChild(progressIA);
 		}else{
 			document.getElementById("player_round").innerHTML = "It is red turn";
 		}
@@ -225,7 +228,7 @@ function set_player(){
 			document.getElementById("player_round").innerHTML = "It is the computer turn, wait..";
 			progressIA = document.createElement("progress");
 			progressIA.max = 100;
-			//document.getElementById("player_round").appendChild(progressIA);
+			document.getElementById("player_round").appendChild(progressIA);
 		}else{
 			if(connect4)
 				document.getElementById("player_round").innerHTML = "It is yellow turn";
@@ -370,7 +373,7 @@ function play(i, j, bool){
 				humanToPlay = false;
 				if(worker){
 					worker.playing = true;
-					worker.postMessage({cmd:"random", grid:grille,player:player,depth:searchDepth,nb_win:nb_win, connect4:connect4});
+					worker.postMessage({cmd:"random", grid:grille,player:player,depth:searchDepth,nb_win:nb_win, connect4:connect4, lastx:i, lasty:j});
 				}else{
 					setTimeout(function(){ random_player() }, 500);
 				}
@@ -378,7 +381,7 @@ function play(i, j, bool){
 				humanToPlay = false;
 				if(worker){
 					worker.playing = true;
-					worker.postMessage({cmd:"ia", grid:grille,player:player,depth:searchDepth,nb_win:nb_win, connect4:connect4});
+					worker.postMessage({cmd:"ia", grid:grille,player:player,depth:searchDepth,nb_win:nb_win, connect4:connect4, lastx:i, lasty:j});
 				}else{
 					setTimeout(function(){ iaPlay(grille, searchDepth); }, 500);
 				}
@@ -529,13 +532,13 @@ function display_lines(x, y, col, id){
 	
 	switch(id){
 		case 0:
-			for(var i = x; i < nb_rows; i++){
+			for(var i = x+1; i < nb_rows; i++){
 				if(get_col(i,y) == col)
 					document.getElementById("game" + i + "_" + y).className = classe;
 				else
 					break;
 			}
-			for(var i = 0; i < x; i++){
+			for(var i = x; i >= 0; i--){
 				if(get_col(i,y) == col)
 					document.getElementById("game" + i + "_" + y).className = classe;
 				else
@@ -544,13 +547,13 @@ function display_lines(x, y, col, id){
 			break;
 
 		case 1:
-			for(var j = y; j < nb_cols; j++){
+			for(var j = y+1; j < nb_cols; j++){
 				if(get_col(x,j) == col)
 					document.getElementById("game" + x + "_" + j).className = classe;
 				else 
 					break;
 			}
-			for(var j = 0; j < y; j++){
+			for(var j = y; j >= 0; j--){
 				if(get_col(x,j) == col)
 					document.getElementById("game" + x + "_" + j).className = classe;
 				else
@@ -573,6 +576,7 @@ function display_lines(x, y, col, id){
 				xt++;
 				yt++;
 			}
+			break;
 		case 3:
 			xt=x;
 			yt=y;
@@ -591,4 +595,5 @@ function display_lines(x, y, col, id){
 			}
 			break;
 	}
+	document.getElementById("game" + x + "_" + y).className = classe;
 }
