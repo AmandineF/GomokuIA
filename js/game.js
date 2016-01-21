@@ -12,18 +12,22 @@ var nb_rows, nb_rows, nb_win;
 var player, red_human, red_random, red_ia, black_random, black_human, black_ia, humanToPlay;
 
 //Game variables
-var end_game, grille, searchDepth, serie1, serie2;
+var end_game, grille, searchDepth, serie1, serie2, connect4 = false, progressIA = 0, lastRoundPlayer = -1;
 
 var worker; 
- 
+
 init_game();
 
 function init_game(){
-	console.log("init");
 	if(worker && worker.playing){ 
 		worker.terminate();
 	}
 	createWorker();
+	get_configuration(true);
+}
+
+function setConnect4(bool){
+	connect4 = bool;
 }
 
 function createWorker(){
@@ -40,14 +44,13 @@ function createWorker(){
 	worker.onmessage = function(e){
 		var data = e.data;
 		switch(data.cmd){
+			case "update":
+				progressIA.value = data.value;
+				break;
 			case "coup":
 				play(data.x,data.y);
 			break;
 		}
-	};
-
-	worker.onerror = function(e){
-		alert(e.message);
 	};
 }
 
@@ -59,39 +62,52 @@ function get_configuration(bool){
 	if(bool){
 		setValue("blue_points",0);
 		setValue("red_points",0);
+		lastRoundPlayer = -1;
 	}
 
 	nb_rows = document.getElementById("nb_rows").innerHTML;
 	nb_cols = document.getElementById("nb_cols").innerHTML;
 	nb_win = document.getElementById("nb_win").innerHTML;
 
-	//Human 
-	red_human = document.getElementById("red").checked;
-	black_human = document.getElementById("blue").checked;
+	if(document.getElementById("2computer").checked) {
+		red_ia = true;
+		black_ia = true;
+		searchDepth = 2;
+	}else{
+		//Human 
+		red_human = document.getElementById("red").checked;
+		black_human = document.getElementById("blue").checked;
 
-	//Random
-	red_random = document.getElementById("blue").checked && 
-				document.getElementById("computer").checked &&
-				document.getElementById("random").checked;
+		//Random
+		red_random = document.getElementById("blue").checked && 
+					document.getElementById("computer").checked &&
+					document.getElementById("random").checked;
 
-	black_random = document.getElementById("red").checked && 
-				document.getElementById("computer").checked &&
-				document.getElementById("random").checked;
+		black_random = document.getElementById("red").checked && 
+					document.getElementById("computer").checked &&
+					document.getElementById("random").checked;
 
-	//IA
-	red_ia = document.getElementById("blue").checked && 
-				document.getElementById("computer").checked &&
-				(document.getElementById("medium").checked || document.getElementById("hard").checked);
+		//IA
+		red_ia = document.getElementById("blue").checked && 
+					document.getElementById("computer").checked &&
+					(document.getElementById("medium").checked || document.getElementById("hard").checked);
 
-	black_ia = document.getElementById("red").checked && 
-				document.getElementById("computer").checked &&
-				(document.getElementById("medium").checked || document.getElementById("hard").checked);
+		black_ia = document.getElementById("red").checked && 
+					document.getElementById("computer").checked &&
+					(document.getElementById("medium").checked || document.getElementById("hard").checked);
 
-	searchDepth = document.getElementById("hard").checked? 6 : 4;
-
+		searchDepth = document.getElementById("hard").checked? 8 : 4;
+	}
 
 	//Aleatoire 
-	player = Math.random() >= 0.5 ? 1 : 2;
+	if(lastRoundPlayer == -1) {
+		player = Math.random() >= 0.5 ? 1 : 2;
+	}else if(lastRoundPlayer == 1){
+		player = 2;
+	} else {
+		player = 1;
+	}
+	lastRoundPlayer = player;
 	set_player();
 
 	end_game = 1;
@@ -100,17 +116,12 @@ function get_configuration(bool){
 		grille[i] = new Array(nb_cols);
 
 	create_table();
-	if((player == 1 && red_human) || (player == 2 && black_human))
+	if((player == 1 && red_human) || (player == 2 && black_human)) {
 		humanToPlay = true;
+	}
 
-	if(red_random && (player == 1)){
-		if(worker){
-			worker.playing = true;
-			worker.postMessage({cmd:"random", grid:grille,player:player,depth:searchDepth,nb_win:nb_win});
-		}else{
-			random_player();
-		}
-	}else if(black_random && !(player == 1)){
+	if((red_random && player == 1) || (black_random && player == 2)){
+		humanToPlay = false;
 		if(worker){
 			worker.playing = true;
 			worker.postMessage({cmd:"random", grid:grille,player:player,depth:searchDepth,nb_win:nb_win});
@@ -118,17 +129,12 @@ function get_configuration(bool){
 			random_player();
 		}
 	}
-	if(red_ia && (player == 1)){
+
+	if((red_ia && player == 1) || (black_ia && player == 2)){
+		humanToPlay = false;
 		if(worker){
 			worker.playing = true;
-			worker.postMessage({cmd:"ia", grid:grille,player:player,depth:searchDepth,nb_win:nb_win});
-		}else{
-			iaPlay(grille, searchDepth);
-		}
-	}else if(black_ia && !(player == 1)){
-		if(worker){
-			worker.playing = true;
-			worker.postMessage({cmd:"ia", grid:grille,player:player,depth:searchDepth,nb_win:nb_win});
+			worker.postMessage({cmd:"ia", grid:grille,player:player,depth:searchDepth,nb_win:nb_win, connect4:connect4});
 		}else{
 			iaPlay(grille, searchDepth);
 		}
@@ -196,17 +202,36 @@ function random_configuration(){
  */
 function set_player(){
 	if(player == 1){
-		document.getElementById("img_turn").src = "images/delete.png";
-		if(red_random || red_ia)
+		if(connect4){
+			document.getElementById("img_turn").src = "images/redPlayer.png";
+		} else {
+			document.getElementById("img_turn").src = "images/delete.png";
+		}
+		if(red_random || red_ia){
 			document.getElementById("player_round").innerHTML = "It is the computer turn, wait..";
-		else
+			progressIA = document.createElement("progress");
+			progressIA.max = 100;
+			//document.getElementById("player_round").appendChild(progressIA);
+		}else{
 			document.getElementById("player_round").innerHTML = "It is red turn";
+		}
 	}else{
-		document.getElementById("img_turn").src = "images/geometry.png";
-		if(black_random || black_ia)
+		if(connect4){
+			document.getElementById("img_turn").src = "images/yellowPlayer.png";
+		} else {
+			document.getElementById("img_turn").src = "images/geometry.png";
+		}
+		if(black_random || black_ia){
 			document.getElementById("player_round").innerHTML = "It is the computer turn, wait..";
-		else
-			document.getElementById("player_round").innerHTML = "It is blue turn";
+			progressIA = document.createElement("progress");
+			progressIA.max = 100;
+			//document.getElementById("player_round").appendChild(progressIA);
+		}else{
+			if(connect4)
+				document.getElementById("player_round").innerHTML = "It is yellow turn";
+			else
+				document.getElementById("player_round").innerHTML = "It is blue turn";
+		}
 
 	}
 }
@@ -217,16 +242,24 @@ function set_player(){
  */
 function create_table(){
 	var size;
-	document.getElementById("table_game").remove();
+	if(document.getElementById("table_game")){
+		document.getElementById("table_game").remove();
+	}else if(document.getElementById("table_game_4")){
+		document.getElementById("table_game_4").remove();
+	}
 	var table_game = document.createElement("table");
-	table_game.id = "table_game";
+	if(connect4)
+		table_game.id = "table_game_4";
+	else
+		table_game.id = "table_game";
+
 	table_game.align = "center";
 	
-	if(nb_rows <= 5)
+	if(nb_rows <= 5 && nb_cols <= 5)
 		table_game.className = "bigTable";
-	if(nb_rows > 5 && nb_rows <= 10)
+	else if((nb_rows > 5 || nb_cols > 5) && nb_rows <= 10 && nb_cols <= 10)
 		table_game.className = "mediumTable";
-	if(nb_rows > 10)
+	else if(nb_rows > 10 || nb_cols > 10)
 		table_game.className = "smallTable";
 
 	var row, cell;
@@ -235,6 +268,8 @@ function create_table(){
 		for(j = 0; j < nb_cols; j++) {
 			cell = row.insertCell(j);
 			cell.id = "game" + i + "_" + j;
+			if(connect4)
+				cell.className = "connect4";
 			cell.onclick = setClick(i, j);
 			grille[i][j] = 0;
 		}
@@ -254,6 +289,25 @@ function setClick(x,y){
     };
 }
 
+function getRightCell(i, j){
+	if(grille[5][j] == 0) {
+		play(5,j,true);
+		return false;
+	}
+
+	for(var x = 0; x < nb_rows; x++){
+		if(grille[x][j] == 0) {
+			if(x+1 < 6){
+				if(grille[x+1][j] != 0){
+					play(x,j,true);
+					return false;
+				}
+			}
+		}
+	}
+
+	return false;
+}
 /**
  * @function play(i,j)
  * Play the token at the coordinates x and y 
@@ -262,13 +316,25 @@ function setClick(x,y){
  */
 function play(i, j, bool){	
 	if(!humanToPlay && bool) return false;
-	if(end_game == 1 && get_col(i,j) != "red" && get_col(i,j) != "black"){
+	if((i+1 < 6) && connect4 && grille[i + 1][j] == 0) {
+		getRightCell(i,j);
+		return false;
+	}
+	if(end_game == 1 && get_col(i,j) != "red" && get_col(i,j) != "black" && get_col(i,j) != "connect4_yellow" && get_col(i,j) != "connect4_red"){
 		if(player == 1){
 			grille[i][j] = 1;
-			document.getElementById("game" + i + "_" + j).className = "red";
+			if(!connect4){
+				document.getElementById("game" + i + "_" + j).className = "red";
+			}else{
+				document.getElementById("game" + i + "_" + j).className = "connect4_red";
+			}
 		}else{
 			grille[i][j] = 2;
-			document.getElementById("game" + i + "_" + j).className = "black";
+			if(!connect4){
+				document.getElementById("game" + i + "_" + j).className = "black";
+			}else{
+				document.getElementById("game" + i + "_" + j).className = "connect4_yellow";
+			}
 		}
 		end_game = check_win(i, j, get_col(i,j));
 		if(end_game == 0){
@@ -278,10 +344,18 @@ function play(i, j, bool){
 				inc("red_points", Infinity);
 				displayContinue(1);
 			}else{
-				document.getElementById("img_turn").src = "images/geometry.png";
-				document.getElementById("player_round").innerHTML = "Blue win !";
-				inc("blue_points",Infinity);
-				displayContinue(2);
+				if(connect4){
+					document.getElementById("img_turn").src = "images/yellowPlayer.png";
+					document.getElementById("player_round").innerHTML = "Yellow win !";
+					inc("blue_points",Infinity);
+					displayContinue(4);
+				} else {
+					document.getElementById("img_turn").src = "images/geometry.png";
+					document.getElementById("player_round").innerHTML = "Blue win !";
+					inc("blue_points",Infinity);
+					displayContinue(2);
+				}
+				
 			}
 		
 		}else if(end_game == 1){
@@ -296,7 +370,7 @@ function play(i, j, bool){
 				humanToPlay = false;
 				if(worker){
 					worker.playing = true;
-					worker.postMessage({cmd:"random", grid:grille,player:player,depth:searchDepth,nb_win:nb_win});
+					worker.postMessage({cmd:"random", grid:grille,player:player,depth:searchDepth,nb_win:nb_win, connect4:connect4});
 				}else{
 					setTimeout(function(){ random_player() }, 500);
 				}
@@ -304,7 +378,7 @@ function play(i, j, bool){
 				humanToPlay = false;
 				if(worker){
 					worker.playing = true;
-					worker.postMessage({cmd:"ia", grid:grille,player:player,depth:searchDepth,nb_win:nb_win});
+					worker.postMessage({cmd:"ia", grid:grille,player:player,depth:searchDepth,nb_win:nb_win, connect4:connect4});
 				}else{
 					setTimeout(function(){ iaPlay(grille, searchDepth); }, 500);
 				}
@@ -446,8 +520,12 @@ function display_lines(x, y, col, id){
 	var classe, xt, yt;
 	if(col == "red")
 		classe = 'redWin';
-	else
+	else if(col == "black")
 		classe = 'blackWin';
+	else if(col == "connect4_yellow")
+		classe = 'yellowWin';
+	else if(col == "connect4_red")
+		classe = 'red4win';
 	
 	switch(id){
 		case 0:

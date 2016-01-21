@@ -83,7 +83,7 @@ function dec(id, min){
 function setValue(id, value){
 	var span = document.getElementById(id);
 	while(span.firstChild)
-	    span.removeChild( span.firstChild );
+	    span.removeChild(span.firstChild);
 	document.getElementById(id).appendChild(document.createTextNode(value));
 }
 
@@ -116,8 +116,11 @@ function displayContinue(bool){
 		document.getElementById('continue').style.backgroundColor = '#ed5564';
 	else if(bool == 2)
 		document.getElementById('continue').style.backgroundColor = '#5c9ded';
+	else if(bool == 4)
+		document.getElementById('continue').style.backgroundColor = '#f1c40f';
 	else
 		document.getElementById('continue').style.backgroundColor = '#99d468';
+
 }
 
 /**
@@ -146,8 +149,8 @@ function changeLogo(id){
 			document.getElementById('div_nb').style.display = 'none';
 			document.getElementById('random_btn').style.display = 'none';
 			document.getElementById('restart_btn').className = 'col-xs-12';
-	 		setValue('nb_rows', 7);
-			setValue('nb_cols', 7);
+	 		setValue('nb_rows', 15);
+			setValue('nb_cols', 15);
 			setValue('nb_win', 5);
 			get_configuration(true);
 			break;
@@ -159,6 +162,21 @@ function changeLogo(id){
 			setValue('nb_rows', 3);
 			setValue('nb_cols', 3);
 			setValue('nb_win', 3);
+			get_configuration(true);
+			break;
+		case 2: //CONNECT4
+			document.getElementById('logo').src = "images/connect4.png";
+			document.getElementById('playerLeft').src = "images/redPlayer.png";
+			document.getElementById('playerRight').src = "images/yellowPlayer.png";
+			document.getElementById('logo').style.width = '200px';
+			document.getElementById('div_nb').style.display = 'none';
+			document.getElementById('random_btn').style.display = 'none';
+			document.getElementById('restart_btn').className = 'col-xs-12';
+			document.getElementById('colorPlayer2').innerHTML = '<span></span> Yellow';
+			setConnect4(true);
+			setValue('nb_rows', 6);
+			setValue('nb_cols', 7);
+			setValue('nb_win', 4);
 			get_configuration(true);
 			break;
 		default: //YOUR OWN GRID

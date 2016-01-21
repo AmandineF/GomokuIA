@@ -19,6 +19,19 @@ body{
   text-align: center; 
 }
 
+.connect4{
+  background: url("../images/connect4_empty.png") no-repeat center center;
+  background-size: 100% 100%;
+}
+.connect4_red{
+  background:  url("../images/connect4_red.png") no-repeat center center;
+  background-size: 100% 100%;
+}
+.connect4_yellow{
+  background: url("../images/connect4_yellow.png") no-repeat center center;
+  background-size: 100% 100%;
+}
+
 .red {
   background: #e0e4e7  url("../images/delete.png") no-repeat center center;
 }
@@ -35,6 +48,14 @@ body{
   background: #5c9ded;
 }
 
+.yellowWin{
+   background: url("../images/connect4_yellow_win.png") no-repeat center center;
+  background-size: 100% 100%;
+}
+.red4win{
+   background: url("../images/connect4_red_win.png") no-repeat center center;
+  background-size: 100% 100%;
+}
 .turn{
   margin-left:10px;
   margin-top:10px;
@@ -43,10 +64,31 @@ body{
   font-weight: bold;
 }
 
-table { 
+table td{
+  cursor: pointer;
+  display: table-cell !important;
+  background-color: #e0e4e7 ;
+ border: 1px solid #a5adb8;
+}
+
+table{
+  margin : 10px auto auto auto; 
+
+}
+#table_game { 
   margin : 10px auto auto auto; 
   border-collapse: inherit !important;
-  border-spacing: 8px 8px !important;
+  border-spacing: 8px 8px;
+}
+
+#table_game_4 { 
+  margin : 10px auto auto auto; 
+  border-collapse: inherit !important;
+  border-spacing: 0;
+}
+
+#table_game_4 td{
+  border: 1px solid #5c9ded;
 }
 
 .container{
@@ -64,20 +106,16 @@ table {
 }
 
 .mediumTable td{
-  width:70px !important;
-  height:70px !important;
+  width:80px !important;
+  height:80px !important;
 }
 
 .smallTable td{
-  width:40px !important;
-  height:40px !important;
+  width:50px !important;
+  height:50px !important;
 }
-
-table td{
-  cursor: pointer;
-  display: table-cell !important;
-  background-color: #e0e4e7 ;
-  border: 1px solid #a5adb8;
+.smallTable {
+   border-spacing: 3px 3px !important;
 }
 
 .border_bottom {
@@ -255,12 +293,19 @@ label{
 .greenMenu {
   background-color:#99d468;
    height:200px;
+    margin-right: 10px;
 }
 
 .blueMenu {
   background-color:#5c9ded;
    height:200px;
     margin-right: 10px;
+}
+
+.yellowMenu{
+  background-color:#f1c40f;
+  height:200px;
+  margin-right: 10px;
 }
 
 .blackbutton{
@@ -303,8 +348,13 @@ label{
 }
 
 .blue {
-  background: #e0e4e7  url("../images/round.png") no-repeat center center;
+  background: #e0e4e7  url("../images/sphere.png") no-repeat center center;
    background-size: 12px 12px;
+}
+
+.yellow {
+  background: #e0e4e7  url("../images/roundYellow.png") no-repeat center center;
+  background-size: 12px 12px;
 }
 
 .green {

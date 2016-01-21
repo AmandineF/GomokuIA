@@ -13,11 +13,11 @@
 				<span style="color:black;">L</span><span style="color:black;">A</span><span style="color:black;">G</span>
 			</div>
 			<div class="row" style="height:100%">
-				<div id="princ" class="col-xs-12" style="position:absolute;top:30%">
-					<div class="row text-center" style="margin-top:20px;">
+				<div id="princ" class="col-xs-12" style="position:absolute;top:25%">
+					<div class="row text-center" style="margin-top:0px;">
 						<div id="menu" class="menu">
-							<div class="col-sm-3"></div>
-							<div class="redMenu col-sm-2">
+							<div class="col-sm-2"></div>
+							<div class="redMenu col-sm-4">
 								<a href="game.html" onclick="saveData(1);">
 									<table class="smallMenu">
 										<tr><td class="red2"></td><td></td><td></td></tr>
@@ -27,7 +27,7 @@
 									<span> Tic Tac Toe</span>
 								</a>
 							</div>
-							<div class="blueMenu col-sm-2">
+							<div class="blueMenu col-sm-4">
 								<a href="game.html" onclick="saveData(3);">
 									<table class="verySmallMenu">
 										<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
@@ -41,8 +41,22 @@
 									<span>Gomoku</span>
 								</a>
 							</div>
-							<div class="greenMenu col-sm-2">
+							<div class="col-sm-2"></div>
+							<div class="yellowMenu col-sm-4">
 								<a href="game.html" onclick="saveData(2);">
+									<table class="verySmallMenu">
+										<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+										<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+										<tr><td></td><td></td><td></td><td class="yellow"></td><td></td><td></td><td></td></tr>
+										<tr><td></td><td></td><td class="yellow"></td><td></td><td></td><td></td><td></td></tr>
+										<tr><td></td><td class="yellow"></td><td></td><td></td><td></td><td></td><td></td></tr>
+										<tr><td class="yellow"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+									</table>
+									<span>Connect 4</span>
+								</a>
+							</div>
+							<div class="greenMenu col-sm-4">
+								<a href="game.html" onclick="saveData(4);">
 									<table class="mediumSmallMenu">
 										<tr><td></td><td class="green"></td><td></td><td></td><td></td></tr>
 										<tr><td></td><td class="green"></td><td></td><td></td><td></td></tr>
@@ -52,7 +66,7 @@
 									<span>Your Own Grid</span>
 								</a>
 							</div>
-							<div class="col-sm-3"></div>
+							<div class="col-sm-2"></div>
 						</div>
 					</div>
 				</div>
@@ -60,8 +74,6 @@
 			<footer id="foot">Copyright © 2016 Amandine Fouillet & Laura Guillemot</footer>
 		</div>
 		<script src="js/graphique.js"></script>
-		<script src='js/game.js'></script>
-		<script src='js/ia.js'></script>
 		<script src="js/jquery-2.2.0.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 	</body>

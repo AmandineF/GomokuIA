@@ -14,14 +14,19 @@ onmessage = function(e) {
 	nb_cols = data.grid[0].length;
 	nb_win = data.nb_win;
 	player = data.player;
+	connect4 = data.connect4;
 
 	switch(data.cmd){
 		case "random":
-			random_player();
-		break;
+			setTimeout(function(){ random_player(data.grid) }, 500);
+			break;
 		case "ia":
-			iaPlay(data.grid, searchDepth);
-		break;
+			if(connect4){
+				setTimeout(function(){ iaPlay(data.grid, searchDepth) }, 200);
+			} else{
+				iaPlay(data.grid, searchDepth);
+			}
+			break;
 	}
 };
 
@@ -41,37 +46,42 @@ function iaPlay(originalGrid, depth) {
  * @param depth - Search depth
  */
 function iaPlayer(grid, depth) {
-	var tmp, xplay, yplay;
+	var tmp, xplay = -1, yplay = -1;
 	var max = -Infinity;
 	var alpha = -Infinity;
 	var beta = Infinity;
 	for(var x = 0; x < grid.length; x++){
 		for(var y = 0; y < grid[0].length; y++){
-			if(grid[x][y] == 0){
-				grid[x][y] = player;
-				tmp = iaMin(grid, depth-1, alpha, beta);
-				//console.log("TMP : " + tmp)
-				if(tmp > max) {
-					max = tmp; 
-					xplay = x; 
-					yplay = y;
-					//console.log("NEW MAX : " + max);
-				}
-				if(tmp > beta){
-					xplay = x; 
-					yplay = y;
-					//console.log("max " + tmp + " - beta " + beta);
-					play(xplay, yplay);
+			//console.log("upd" + (x*nb_cols+y)*100/(nb_rows*nb_cols));
+			//postMessage({cmd:"update",value:(x*nb_cols+y)*100/(nb_rows*nb_cols)});
+
+			//console.log(x + " - " + y + " c " + connect4 + " g "); 
+			if((x == 5) || ((x+1 < 6) && connect4 && grid[x + 1][y] != 0) || !connect4) {
+				//console.log(x + " - " + y + " c " + connect4 + " g " + grid[x + 1][y]); 
+				if(grid[x][y] == 0){
+					grid[x][y] = player;
+					tmp = iaMin(grid, depth-1, alpha, beta);
+					if(tmp > max) {
+						max = tmp; 
+						xplay = x; 
+						yplay = y;
+					}
+					if(tmp > beta){
+						xplay = x; 
+						yplay = y;
+						play(xplay, yplay);
+						grid[x][y] = 0;
+						return 0;
+					}
+					if(tmp >= alpha){
+						alpha = tmp;
+					}
 					grid[x][y] = 0;
-					return 0;
 				}
-				if(tmp >= alpha){
-					alpha = tmp;
-				}
-				grid[x][y] = 0;
 			}
 		}
 	}
+	//console.log(xplay + " - " + yplay);
 	postMessage({cmd:"coup",x:xplay,y:yplay});
 	//play(xplay, yplay);
 }
@@ -86,32 +96,32 @@ function iaPlayer(grid, depth) {
 function iaMax(grid, depth, alpha, beta) {
 	if(depth == 0 | winner(grid) != 0){
 		return iaRanting(grid);
-		if(nb_rows > 4)
+		/*if(nb_rows > 4)
 			return iaEstimation(grid);
 		else
-			return iaRanting(grid);
+			return iaRanting(grid);*/
 	}
 
 	var max = -Infinity;
 	var tmp = 0;
 	for(var i = 0; i < grid.length; i++){
 		for(var j = 0; j < grid[0].length; j++){
-			if(grid[i][j] == 0){
-				grid[i][j] = player;
-				//console.log("MAX play " + player  + "- "   + i + "-" + j + " - depth : " + (depth-1));
-				tmp = iaMin(grid, depth-1, alpha, beta);
-				if(tmp > max){
-					max = tmp; 
-				}
-				if(tmp >= beta){
+			if((i == 5) || ((i+1 < 6) && connect4 && grid[i + 1][j] != 0) || !connect4) {
+				if(grid[i][j] == 0){
+					grid[i][j] = player;
+					tmp = iaMin(grid, depth-1, alpha, beta);
+					if(tmp > max){
+						max = tmp; 
+					}
+					if(tmp >= beta){
+						grid[i][j] = 0;
+						return tmp;
+					}
+					if(tmp > alpha){
+						alpha = tmp;
+					}
 					grid[i][j] = 0;
-					//console.log("max " + tmp + " - beta " + beta);
-					return tmp;
 				}
-				if(tmp > alpha){
-					alpha = tmp;
-				}
-				grid[i][j] = 0;
 			}
 		}
 	}
@@ -129,10 +139,10 @@ function iaMin(grid, depth, alpha, beta) {
 	var token = 0;
 	if(depth == 0 | winner(grid) !=0){
 		return iaRanting(grid);
-		if(nb_rows > 4)
+		/*if(nb_rows > 4)
 			return iaEstimation(grid);
 		else
-			return iaRanting(grid);
+			return iaRanting(grid);*/
 	}
 
 	if(player == 1)
@@ -144,28 +154,28 @@ function iaMin(grid, depth, alpha, beta) {
 	var tmp = 0;
 	for(var i = 0; i < grid.length; i++){
 		for(var j = 0; j < grid[0].length; j++){
-			if(grid[i][j] == 0){
-				grid[i][j] = token;
-				//console.log("MIN play " + token + "- " + i + "-" + j + " - depth : " + (depth-1));
-				tmp = iaMax(grid, depth-1, alpha, beta);
-				if(tmp < min){
-					min = tmp; 
-				}
-				if(tmp < alpha){
+			if((i == 5) || ((i+1 < 6) && connect4 && grid[i + 1][j] != 0) || !connect4) {
+				if(grid[i][j] == 0){
+					grid[i][j] = token;
+					tmp = iaMax(grid, depth-1, alpha, beta);
+					if(tmp < min){
+						min = tmp; 
+					}
+					if(tmp < alpha){
+						grid[i][j] = 0;
+						return tmp;
+					}
+					if(tmp <= beta){
+						beta = tmp;
+					}
 					grid[i][j] = 0;
-					//console.log("min " + tmp + " - beta " + alpha);
-					return tmp;
 				}
-				if(tmp <= beta){
-					beta = tmp;
-				}
-				grid[i][j] = 0;
-
 			}
 		}
 	}
 	return min;
 }
+
 
 /**
  * @function iaRanting
@@ -175,7 +185,6 @@ function iaMin(grid, depth, alpha, beta) {
 function iaRanting(grid) {
 	var nbPions = 0;
 	var res = 0;
-/*
 	for(var i = 0; i < grid.length; i++)
 		for(var j = 0; j < grid[0].length; j++)
 			if(grid[i][j] != 0)
@@ -195,16 +204,6 @@ function iaRanting(grid) {
 		res = serie1-serie2;
 	else 
 		res = serie2-serie1;
-	return res;*/
-
-	for(var i = 0; i < nb_win; i++) {
-		alignToken(grid, i);
-		if(player == 1)
-			res += (serie1-serie2);
-		else 
-			res += (serie2-serie2);
-	}
-	//console.log(res);
 	return res;
 }
 
@@ -294,7 +293,7 @@ function alignToken(grid, nb_align){
 		cpt1 = cpt2 = 0;
 
 		//Vertically
-		for(var j = 0; j < grid[0].length; j++){
+		for(var j = 0; j < grid.length; j++){ //changement grid[0].length
 			if(grid[j][i] == 1){
 				cpt1++;
 				cpt2 = 0;
@@ -315,11 +314,19 @@ function alignToken(grid, nb_align){
  * @function random_player()
  * Play a token randomly
  */
-function random_player() {
-	do{
-		var i =  Math.floor((Math.random() * nb_rows));
-		var j = Math.floor((Math.random() * nb_cols));
-	}while(get_col(i, j) == "red" || get_col(i, j) == "black");
+function random_player(grid) {
+	var i = -1, j = -1;
+	if(!connect4) {
+		do{
+			i =  Math.floor((Math.random() * nb_rows));
+			j = Math.floor((Math.random() * nb_cols));
+		}while(grid[i][j] != 0);
+	}else{
+		do{
+			i = Math.floor((Math.random() * nb_rows));
+			j = Math.floor((Math.random() * nb_cols));
+		}while(grid[i][j] != 0 || (i + 1 < 6 && grid[i + 1][j] == 0));
+	}
 	//play(i,j);
 	postMessage({cmd:"coup",x:i, y:j});
 }
@@ -506,15 +513,6 @@ function iaAnalyse(grille,x,y){
 	return estimation;
 }
 
-/**
- * @function get_col()
- * Get the color of token in the cell
- * @param i - abscissa of the token 
- * @param j -  ordinate of the token 
- */
-function get_col(i, j) {
-	return document.getElementById("game" + i + "_" + j).className;
-}
 
 /**
  * @function pasteGrid

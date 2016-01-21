@@ -6,7 +6,7 @@
 	</head>
 	<link rel="stylesheet" type="text/css" href="css/gomoku.css">
 	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
-	<body style="text-align:left;" onload="init_graph();init_game();">
+	<body style="text-align:left;" onload="init_graph();">
 		<div class="container">
 			<div class="row">
 			<div id="princ" class="col-xs-12">
@@ -29,7 +29,7 @@
 							<tr><td></td><td></td><td></td></tr>
 						</table>
 						</div>
-						<div style="margin-top:30px;"><span class="turn"><img src="images/delete.png" width="2%"> Player <span class="number" id="red_points">8</span> - <span id="blue_points" class="number">3</span> Player <img src="images/geometry.png" width="2%"></span></div>
+						<div style="margin-top:30px;"><span class="turn"><img id="playerLeft" src="images/delete.png" width="2%"> Player <span class="number" id="red_points">8</span> - <span id="blue_points" class="number">3</span> Player <img id="playerRight" src="images/geometry.png" width="2%"></span></div>
 				</div>
 			</div>
 			<div id="config" class="col-md-3 col-xs-6 text-right">
@@ -62,13 +62,15 @@
   						<label for="human"><span></span>Human</label>
 						<input type="radio" id="computer" name="player" checked="true" onclick="showComp();" />
  						<label for="computer"><span></span>Computer</label>
+ 						<input type="radio" id="2computer" name="player" onclick="hideComp();" />
+ 						<label for="2computer"><span></span>Let the computer play alone</label>
 					</div>
 					<div id="color" class="col-xs-12 text-left" style="margin-top:30px;margin-right:10px;">
 						<span style="margin-right:10px">Your color </span>
 						<input type="radio" id="red" name="color" checked="true"/>
   						<label for="red"><span></span>Red</label>
 						<input type="radio" id="blue" name="color"/>
- 						<label for="blue"><span></span>Blue</label>
+ 						<label id="colorPlayer2" for="blue"><span></span>Blue</label>
 					</div>
 					<div id="difficulty" class="col-xs-12 text-left" style="margin-top:30px;margin-right:10px;">
 						<span style="margin-right:10px">Difficulty</span>
