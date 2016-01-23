@@ -213,6 +213,7 @@ function set_player(){
 		if(red_random || red_ia){
 			document.getElementById("player_round").innerHTML = "It is the computer turn, wait..";
 			progressIA = document.createElement("progress");
+			progressIA.className="progress-bar"
 			progressIA.max = 100;
 			document.getElementById("player_round").appendChild(progressIA);
 		}else{

@@ -366,3 +366,9 @@ label{
   background: #e0e4e7  url("../images/delete.png") no-repeat center center;
   background-size: 22px 22px;
 }
+
+ @media (max-width: 768px) {
+      .col-xs-12.text-right, .col-xs-12.text-left {
+              text-align: center;
+       } 
+    }

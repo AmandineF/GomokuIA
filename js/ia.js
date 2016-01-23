@@ -193,6 +193,8 @@ function iaRanting(grid) {
 	else 
 		res = player2-player1;
 	return res;
+
+
 }
 
 function fullGrid(grid, col){
