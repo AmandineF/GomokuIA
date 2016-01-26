@@ -32,6 +32,13 @@ body{
   background-size: 100% 100%;
 }
 
+.search_1{
+  border:2px solid #ed5564;
+}
+.search_2{
+  border:2px solid #5c9ded;
+}
+
 .red {
   background: #e0e4e7  url("../images/delete.png") no-repeat center center;
 }
@@ -348,7 +355,7 @@ label{
 }
 
 .blue {
-  background: #e0e4e7  url("../images/sphere.png") no-repeat center center;
+   background: #e0e4e7  url("../images/sphere.png") no-repeat center center;
    background-size: 12px 12px;
 }
 

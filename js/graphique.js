@@ -149,8 +149,8 @@ function changeLogo(id){
 			document.getElementById('div_nb').style.display = 'none';
 			document.getElementById('random_btn').style.display = 'none';
 			document.getElementById('restart_btn').className = 'col-xs-12';
-	 		setValue('nb_rows', 15);
-			setValue('nb_cols', 15);
+	 		setValue('nb_rows', 7);
+			setValue('nb_cols', 7);
 			setValue('nb_win', 5);
 			get_configuration(true);
 			break;

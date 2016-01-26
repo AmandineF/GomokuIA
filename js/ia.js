@@ -5,7 +5,7 @@
  * @author Laura Guillemot <laura.guillemot@insa-rennes.fr>
  */
 
-var searchDepth, nb_rows, nb_cols, nb_win;
+var searchDepth, nb_rows, nb_cols, nb_win, cptWin;
 
 onmessage = function(e) {
 	var data = e.data;
@@ -55,7 +55,7 @@ function iaPlayer(grid, depth) {
 	//var beginx = 0, beginy = 0;
 	for(var x = 0; x < grid.length; x++){
 		for(var y = 0; y < grid[0].length; y++){
-			postMessage({cmd:"update",value:(x*nb_cols+y)*100/(nb_rows*nb_cols)});
+			postMessage({cmd:"update",value:(x*nb_cols+y)*100/(nb_rows*nb_cols), x:x, y:y});
 			if((x == 5) || ((x+1 < 6) && connect4 && grid[x + 1][y] != 0) || !connect4) {
 				if(grid[x][y] == 0){
 					grid[x][y] = player;
@@ -148,11 +148,11 @@ function iaMin(grid, depth, alpha, beta) {
 					if(tmp < min){
 						min = tmp; 
 					}
-					if(tmp < alpha){
+					if(tmp <= alpha){
 						grid[i][j] = 0;
 						return tmp;
 					}
-					if(tmp <= beta){
+					if(tmp < beta){
 						beta = tmp;
 					}
 					grid[i][j] = 0;
@@ -177,38 +177,56 @@ function iaRanting(grid) {
 			if(grid[i][j] != 0)
 				nbPions++;
 
-	var theWinner = winner(grid);
-	if(theWinner != 0 && theWinner != 3){
-		if(theWinner == player){
+	var estimation1 = alignToken(grid, nb_win, 1);
+	if(cptWin >= 1){
+		if(player == 1)
 			return 10000 - nbPions;
-		}else{
+		else
 			return -10000 + nbPions;
-		}
 	}
 
-	var player1 = fullGrid(pasteGrid(grid), 1);
-	var player2 = fullGrid(pasteGrid(grid), 2);
+	var estimation2 = alignToken(grid, nb_win, 2);
+	if(cptWin >= 1){
+		if(player == 2)
+			return 10000 - nbPions;
+		else
+			return -10000 + nbPions;
+	}
+
+	/*Old - Connect 4 IA
+		alignToken(fullGrid(pasteGrid(grid),1),nb_win);
+		var player1 = serie1;
+		alignToken(fullGrid(pasteGrid(grid),2),nb_win);
+		var player2 = serie2;
+		if(player == 1)
+			return player1-player2;
+		else 
+			return player2-player1;
+	}*/
+	
 	if(player == 1)
-		res = player1-player2;
-	else 
-		res = player2-player1;
-	return res;
+		return estimation1-estimation2;
+	else
+		return estimation2-estimation1;
 
-
+	/*Old - Tic tac toe IA
+	alignToken(grid, nb_win-1);
+	if(player == 1)
+		res = serie1-serie2;
+	else
+		res = serie2-serie1;
+	return res;*/
 }
 
+/*
 function fullGrid(grid, col){
 	for(var i = 0; i < grid.length; i++)
 		for(var j = 0; j < grid[0].length; j++)
 			if(grid[i][j] == 0)
 				grid[i][j] = col;
-	alignToken(grid, nb_win);
-	if(col == 1){
-		return serie1;
-	}else {
-		return serie2;
-	}
+	return grid;
 }
+*/
 
 /**
  * @function winner
@@ -218,155 +236,22 @@ function fullGrid(grid, col){
  *			0 if they are neck and neck, 3 if the game is not finish
  */
 function winner(grid){
-    alignToken(grid, nb_win);
-    if(serie1 >= 1)
+    alignToken(grid, nb_win, 1);
+    if(cptWin >= 1)
         return 1;
-    else if(serie2 >= 1)
+  
+    alignToken(grid, nb_win, 2);
+    if(cptWin >= 1)
         return 2;
-    else
-    {
-	    for(var i=0;i<grid.length;i++)
-	        for(var j=0;j<grid[0].length;j++)
-	            if(grid[i][j] == 0)
-	                return 0;
-    }
+
+
+    for(var i=0;i<grid.length;i++)
+        for(var j=0;j<grid[0].length;j++)
+            if(grid[i][j] == 0)
+                return 0;
     return 3;
 }
 
-/**
- * @function alignToken
- * Count the number of set of nb_align aligned token
- * @param grid - The grid of the game
- * @param nb_align - The number of token in a set
- */
-function alignToken(grid, nb_align){
-	var cpt1 = cpt2 = x = y = 0;
-	serie1 = serie2 = 0;
-
-	//NO-SE
-	for(y = 0; y < nb_cols; y++){
-		var j = y;
-		x=0;
-		cpt1 = cpt2 = 0;
-		while(j < nb_cols && x < nb_rows){
-			if(grid[x][j] == 1){
-				cpt1++;
-				cpt2 = 0;
-				if(cpt1 == nb_align)
-					serie1++;
-			} else if(grid[x][j] == 2){
-				cpt2++;
-				cpt1 = 0;
-				if(cpt2 == nb_align)
-					serie2++;
-			}
-			j++;
-			x++;
-		}
-	}
-
-	cpt1 = cpt2 = x = y = 0;
-	for(x = 1; x < nb_rows; x++){
-		var i = x;
-		y=0;
-		cpt1 = cpt2 = 0;
-		while(y < nb_cols && i < nb_rows){
-			if(grid[i][y] == 1){
-				cpt1++;
-				cpt2 = 0;
-				if(cpt1 == nb_align)
-					serie1++;
-			} else if(grid[i][y] == 2){
-				cpt2++;
-				cpt1 = 0;
-				if(cpt2 == nb_align)
-					serie2++;
-			}
-			i++;
-			y++;
-		}
-	}
-
-	cpt1 = cpt2 = x = y = 0;
-
-	//SO-NE
-	for(y = nb_cols-1; y >= 0; y--){
-		var j = y;
-		x=0;
-		cpt1 = cpt2 = 0;
-		while(j >= 0 && x < nb_rows){
-			if(grid[x][j] == 1){
-				cpt1++;
-				cpt2 = 0;
-				if(cpt1 == nb_align)
-					serie1++;
-			} else if(grid[x][j] == 2){
-				cpt2++;
-				cpt1 = 0;
-				if(cpt2 == nb_align)
-					serie2++;
-			}
-			j--;
-			x++;
-		}
-	}
-
-	cpt1 = cpt2 = x = y = 0;
-	for(x = 1; x < nb_rows; x++){
-		var i = x;
-		y=nb_cols-1;
-		cpt1 = cpt2 = 0;
-		while(y >= 0 && i < nb_rows){
-			if(grid[i][y] == 1){
-				cpt1++;
-				cpt2 = 0;
-				if(cpt1 == nb_align)
-					serie1++;
-			} else if(grid[i][y] == 2){
-				cpt2++;
-				cpt1 = 0;
-				if(cpt2 == nb_align)
-					serie2++;
-			}
-			i++;
-			y--;
-		}
-	}
-
-	for(var i = 0; i < grid.length; i++){
-		cpt1 = cpt2 = 0;
-		for(var j = 0; j < grid[0].length; j++){
-			if(grid[i][j] == 1){
-				cpt1++;
-				cpt2 = 0;
-				if(cpt1 == nb_align)
-					serie1++;
-			} else if(grid[i][j] == 2){
-				cpt2++;
-				cpt1 = 0;
-				if(cpt2 == nb_align)
-					serie2++;
-			}
-		}
-	}
-
-	for(var j = 0; j < grid[0].length; j++){
-		cpt1 = cpt2 = 0;
-		for(var i = 0; i < grid.length; i++){
-			if(grid[i][j] == 1){
-				cpt1++;
-				cpt2 = 0;
-				if(cpt1 == nb_align)
-					serie1++;
-			} else if(grid[i][j] == 2){
-				cpt2++;
-				cpt1 = 0;
-				if(cpt2 == nb_align)
-					serie2++;
-			}
-		}
-	}
-}
 
 /**
  * @function random_player()
@@ -398,4 +283,165 @@ function pasteGrid(grid) {
 	for(var i = 0; i < nb_rows; i++)
 		newGrid[i] = grid[i].concat([]);
 	return newGrid;
+}
+
+function alignToken(grid, nb_align, player){
+	var cpt = token = estimation = x = y = 0;
+	cptWin = 0;
+	//NO-SE
+	for(y = 0; y < grid[0].length; y++){
+		var j = y;
+		x=0;
+		cpt = token = 0;
+		while(j < grid[0].length && x < grid.length){
+			switch(grid[x][j]){
+				case 0:
+					cpt++;
+					break;
+				case player:
+					token++;
+					if(token == nb_align)
+						cptWin++;
+					break;
+				default:
+					cpt = 0; 
+					token = 0;
+					break;
+			} 
+			j++;
+			x++;
+		}
+		if(cpt >= nb_align)
+			estimation += cpt + token;
+	}
+
+	cpt = token = x = y = 0;
+	for(x = 1; x < grid.length; x++){
+		var i = x;
+		y=0;
+		cpt = token = 0;
+		while(y < grid[0].length && i < grid.length){
+			switch(grid[i][y]){
+				case 0:
+					cpt++;
+					break;
+				case player:
+					token++;
+					if(token == nb_align)
+						cptWin++;
+					break;
+				default:
+					cpt = 0; 
+					token = 0;
+					break;
+			} 
+			i++;
+			y++;
+		}
+		if(cpt >= nb_align)
+			estimation += cpt + token;
+	}
+
+	cpt1 = cpt2 = x = y = 0;
+
+	//SO-NE
+	for(y = grid[0].length-1; y >= 0; y--){
+		var j = y;
+		x=0;
+		cpt = token = 0;
+		while(j >= 0 && x < grid.length){
+			switch(grid[x][j]){
+				case 0:
+					cpt++;
+					break;
+				case player:
+					token++;
+					if(token == nb_align)
+						cptWin++;
+					break;
+				default:
+					cpt = 0; 
+					token = 0;
+					break;
+			} 
+			j--;
+			x++;
+		}
+		if(cpt >= nb_align)
+			estimation += cpt + token;
+	}
+
+	cpt1 = cpt2 = x = y = 0;
+	for(x = 1; x < grid.length; x++){
+		var i = x;
+		y=grid[0].length-1;
+		cpt = token = 0;
+		while(y >= 0 && i < grid.length){
+			switch(grid[i][y]){
+				case 0:
+					cpt++;
+					break;
+				case player:
+					token++;
+					if(token == nb_align)
+						cptWin++;
+					break;
+				default:
+					cpt = 0; 
+					token = 0;
+					break;
+			} 
+			i++;
+			y--;
+		}
+		if(cpt >= nb_align)
+			estimation += cpt + token;
+	}
+
+	//Lines
+	for(var i = 0; i < grid.length; i++){
+		cpt = token = 0;
+		for(var j = 0; j < grid[0].length; j++){
+			switch(grid[i][j]){
+				case 0:
+					cpt++;
+					break;
+				case player:
+					token++;
+					if(token == nb_align)
+						cptWin++;
+					break;
+				default:
+					cpt = 0; 
+					token = 0;
+					break;
+			} 
+		}
+		if(cpt >= nb_align)
+			estimation += cpt + token;
+	}
+
+	//Columns
+	for(var j = 0; j < grid[0].length; j++){
+		cpt = token = 0;
+		for(var i = 0; i < grid.length; i++){
+			switch(grid[i][j]){
+				case 0:
+					cpt++;
+					break;
+				case player:
+					token++;
+					if(token == nb_align)
+						cptWin++;
+					break;
+				default:
+					cpt = 0; 
+					token = 0;
+					break;
+			} 
+		}
+		if(cpt >= nb_align)
+			estimation += cpt + token;
+	}
+	return estimation;
 }
