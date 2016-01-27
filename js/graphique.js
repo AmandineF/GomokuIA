@@ -1,5 +1,5 @@
 /**
- * @file Gomoku game
+ * @file graphique.js
  * Interaction between the js and the html
  * @author Amandine Fouillet <amandinefouillet@gmail.com>
  * @author Laura Guillemot <laura.guillemot@insa-rennes.fr>
@@ -131,17 +131,29 @@ function hideContinue(){
 	document.getElementById('continue').style.display = 'none';
 }
 
+/**
+ * @function hideContinue
+ * Hide the continue button 
+ */
 function saveData(id){
    var game = id;
    game = JSON.stringify(game);
    localStorage.setItem('game', game);
 }
 
-
+/**
+ * @function deleteData
+ * Delete the item game in the localStorage
+ */
 function deleteData(){
 	 localStorage.removeItem('game');
 }
 
+/**
+ * @function changeLogo
+ * Change the actual game
+ * @param id - The id of the selected game 
+ */
 function changeLogo(id){
 	switch(id){
 		case 3: //GOMOKU

@@ -1,5 +1,5 @@
 /**
- * @file game
+ * @file game.js
  * Setting up of the game introduction
  * @author Amandine Fouillet <amandinefouillet@gmail.com>
  * @author Laura Guillemot <laura.guillemot@insa-rennes.fr>
@@ -18,6 +18,10 @@ var worker;
 
 init_game();
 
+/**
+ * @function init_game
+ * Initialisation of the the game
+ */
 function init_game(){
 	if(worker && worker.playing){ 
 		worker.terminate();
@@ -26,10 +30,18 @@ function init_game(){
 	get_configuration(true);
 }
 
+/**
+ * @function setConnect4
+ * @param bool - true if the connect4 game is select, false otherwise
+ */
 function setConnect4(bool){
 	connect4 = bool;
 }
 
+/**
+ * @function createWorker
+ * Creation of the worker for the artificial intelligence
+ */
 function createWorker(){
 	if(window.Worker){
 	    worker = new Worker("js/ia.js");
@@ -51,7 +63,6 @@ function createWorker(){
 				play(data.x,data.y);
 				break;
 			default:
-				console.log("default");
 				break;
 		}
 	};
@@ -102,7 +113,7 @@ function get_configuration(bool){
 		searchDepth = document.getElementById("hard").checked? 6 : 4;
 	}
 
-	//Aleatoire 
+	//Random first player 
 	if(lastRoundPlayer == -1) {
 		player = Math.random() >= 0.5 ? 1 : 2;
 	}else if(lastRoundPlayer == 1){

@@ -1,3 +1,10 @@
+/**
+ * @file gomoku.css
+ * Stylesheet
+ * @author Amandine Fouillet <amandinefouillet@gmail.com>
+ * @author Laura Guillemot <laura.guillemot@insa-rennes.fr>
+ */
+
 @font-face {
   font-family: 'ambrosia';
   src: url('../font/ambrosia.ttf') format('truetype');
@@ -19,6 +26,9 @@ body{
   text-align: center; 
 }
 
+.blackclass{
+  background-color: #5c9ded;
+}
 .connect4{
   background: url("../images/connect4_empty.png") no-repeat center center;
   background-size: 100% 100%;

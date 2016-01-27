@@ -1,5 +1,5 @@
 /**
- * @file Gomoku game
+ * @file ia.js
  * Artificial intelligence
  * @author Amandine Fouillet <amandinefouillet@gmail.com>
  * @author Laura Guillemot <laura.guillemot@insa-rennes.fr>
@@ -7,6 +7,7 @@
 
 var searchDepth, nb_rows, nb_cols, nb_win, cptWin;
 
+/**Worker**/
 onmessage = function(e) {
 	var data = e.data;
 	searchDepth = data.depth;
@@ -52,7 +53,6 @@ function iaPlayer(grid, depth) {
 	var max = -Infinity;
 	var alpha = -Infinity;
 	var beta = Infinity;
-	//var beginx = 0, beginy = 0;
 	for(var x = 0; x < grid.length; x++){
 		for(var y = 0; y < grid[0].length; y++){
 			postMessage({cmd:"update",value:(x*nb_cols+y)*100/(nb_rows*nb_cols), x:x, y:y});
@@ -65,14 +65,14 @@ function iaPlayer(grid, depth) {
 						xplay = x; 
 						yplay = y;
 					}
-					if(tmp > beta){
+					if(tmp >= beta){
 						xplay = x; 
 						yplay = y;
 						play(xplay, yplay);
 						grid[x][y] = 0;
 						return 0;
 					}
-					if(tmp >= alpha){
+					if(tmp > alpha){
 						alpha = tmp;
 					}
 					grid[x][y] = 0;
@@ -191,42 +191,14 @@ function iaRanting(grid) {
 			return 10000 - nbPions;
 		else
 			return -10000 + nbPions;
-	}
+	}	
 
-	/*Old - Connect 4 IA
-		alignToken(fullGrid(pasteGrid(grid),1),nb_win);
-		var player1 = serie1;
-		alignToken(fullGrid(pasteGrid(grid),2),nb_win);
-		var player2 = serie2;
-		if(player == 1)
-			return player1-player2;
-		else 
-			return player2-player1;
-	}*/
-	
+
 	if(player == 1)
 		return estimation1-estimation2;
 	else
 		return estimation2-estimation1;
-
-	/*Old - Tic tac toe IA
-	alignToken(grid, nb_win-1);
-	if(player == 1)
-		res = serie1-serie2;
-	else
-		res = serie2-serie1;
-	return res;*/
 }
-
-/*
-function fullGrid(grid, col){
-	for(var i = 0; i < grid.length; i++)
-		for(var j = 0; j < grid[0].length; j++)
-			if(grid[i][j] == 0)
-				grid[i][j] = col;
-	return grid;
-}
-*/
 
 /**
  * @function winner
@@ -256,6 +228,7 @@ function winner(grid){
 /**
  * @function random_player()
  * Play a token randomly
+ * @param grid - The grid of the actual game
  */
 function random_player(grid) {
 	var i = -1, j = -1;
@@ -285,6 +258,13 @@ function pasteGrid(grid) {
 	return newGrid;
 }
 
+/**
+ * @function pasteGrid
+ * Copy a grid 
+ * @param grid - The grid of the actual game
+ * @param nb_align - The number of aligned token 
+ * @param player - The id of the player
+ */
 function alignToken(grid, nb_align, player){
 	var cpt = token = estimation = x = y = 0;
 	cptWin = 0;
